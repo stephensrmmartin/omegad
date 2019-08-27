@@ -6,13 +6,39 @@
 #' @param ... Options passed onto sampling.
 #'
 #' @importFrom rstan sampling
+#' @importFrom parallel detectCores
 #'
 #' @return omegad object.
 #' @export
 #'
 #' @examples
 omega <- function(formula,data,...){
+  dots <- list(...)
+  if(is.null(dots$cores)){
+    dots$cores <- getOption('mc.cores')
+    if(is.null(dots$cores)){
+      dots$cores <- detectCores()
+    }
+  }
+  if(is.null(dots$control)){
+    dots$control <- list(adapt_delta = .95)
+  }
+  if(is.null(dots$control$adapt_delta)){
+    dots$control$adapt_delta <- .95
+  }
+  if(is.null(dots$chains)){
+    dots$chains <- 4
+  }
 
+  d <- .parse_formula(formula,data)
+  pars <- c('lambda_loc_mat','lambda_sca_mat','nu_loc','nu_sca','theta_cor','theta','omega1','omega2','omega1_expected','omega2_expected')
+  args <- c(list(object=stanmodels$relFactorGeneral,data=d$stan_data,pars=pars),dots)
+  stanOut <- do.call('sampling',args=args)
+
+  out <- list(formula=formula,data=d$model.frame,stan_data=d$stan_data,fit=stanOut)
+  class(out) <- 'omegad'
+
+  return(out)
 }
 
 #' Parses formula and data into stan_data structure
@@ -74,8 +100,7 @@ omega <- function(formula,data,...){
   J <- ncol(mm)
   `F` <- length(forms.rhs)
 
-  list(N=N,J=J,`F`=`F`,F_inds=F_inds,x=mm)
-
+  out <- list(stan_data = list(N=N,J=J,`F`=`F`,F_inds=F_inds,x=mm), model.frame = mf)
 }
 
 #' Takes formula and returns names
@@ -106,9 +131,9 @@ omega <- function(formula,data,...){
 #'
 #' @param names Output of .get_names_formulaList
 #' @param formList Formula list (one entry per factor)
-#' @param mf Model frame
+#' @param mm Model matrix
 #'
-#' @return
+#' @return FxJ matrix with the indicator indices for each factor. Padded with zeroes.
 #' @keywords internal
 #'
 .get_loadings_matrix <- function(formList,mm){
@@ -125,4 +150,18 @@ omega <- function(formula,data,...){
   row.names(lmat) <- do.call(c,fnames$factor)
   lmat
 
+}
+
+.get_diagnostics <- function(object){
+  rhats <- rstan::summary(object$fit,pars=c('lambda_loc_mat','lambda_sca_mat','nu_loc','nu_sca','theta_cor'))$summary[,'Rhat']
+
+  n_effs <- rstan::summary(object$fit,pars=c('lambda_loc_mat','lambda_sca_mat','nu_loc','nu_sca','theta_cor'))$summary[,'n_eff']
+
+  div <- rstan::get_num_divergent(object$fit)
+
+  tree.max <- rstan::get_num_max_treedepth(object$fit)
+
+  bfmi <- rstan::get_bfmi(objects$fit)
+
+  return(mget(c('rhats','n_effs','div','tree.max','bfmi')))
 }
