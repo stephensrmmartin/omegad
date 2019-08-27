@@ -1,14 +1,26 @@
 Package: omegad
 Title: What the Package Does (One Line, Title Case)
 Version: 0.0.0.9000
+Date: 2019-08-27
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    c(
+        person(given = "Stephen R.",
+           family = "Martin",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+           email = "stephenSRMMartin@gmail.com"),
+        person(given = "Donald R.",
+           family = "Williams",
+           role = c("aut"),
+           email = "drwwilliams@ucdavis.edu"),
+        person(given = "Philippe",
+           family = "Rast",
+           role = c("aut" ),
+           email = "prast@ucdavis.edu")
+    )
 Description: What the package does (one paragraph).
-License: What license it uses
+URL: https://github.com/stephensrmmartin/omegad
+BugReports: https://github.com/stephensrmmartin/omegad/issues
+License: GPL (>=3)
 Encoding: UTF-8
 LazyData: true
 Biarch: true
