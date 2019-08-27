@@ -33,7 +33,7 @@ static int current_statement_begin__;
 stan::io::program_reader prog_reader__() {
     stan::io::program_reader reader;
     reader.add_event(0, 0, "start", "model_relFactorGeneral");
-    reader.add_event(152, 150, "end", "model_relFactorGeneral");
+    reader.add_event(153, 151, "end", "model_relFactorGeneral");
     return reader;
 }
 template <typename T0__, typename T3__>
@@ -855,8 +855,9 @@ public:
         names__.push_back("yhat");
         names__.push_back("shat");
         names__.push_back("omega1");
-        names__.push_back("lambda_ones");
         names__.push_back("omega2");
+        names__.push_back("omega1_expected");
+        names__.push_back("omega2_expected");
         names__.push_back("theta_cor");
     }
     void get_dims(std::vector<std::vector<size_t> >& dimss__) const {
@@ -907,11 +908,15 @@ public:
         dims__.push_back(F);
         dimss__.push_back(dims__);
         dims__.resize(0);
+        dims__.push_back(N);
         dims__.push_back(F);
-        dims__.push_back(J);
         dimss__.push_back(dims__);
         dims__.resize(0);
-        dims__.push_back(N);
+        dims__.push_back(1);
+        dims__.push_back(F);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(1);
         dims__.push_back(F);
         dimss__.push_back(dims__);
         dims__.resize(0);
@@ -1102,21 +1107,28 @@ public:
             stan::math::initialize(omega1, DUMMY_VAR__);
             stan::math::fill(omega1, DUMMY_VAR__);
             stan::math::assign(omega1,omega_one(lambda_loc_mat, F_inds, F_inds_num, shat, pstream__));
-            current_statement_begin__ = 146;
-            validate_non_negative_index("lambda_ones", "F", F);
-            validate_non_negative_index("lambda_ones", "J", J);
-            Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> lambda_ones(F, J);
-            stan::math::initialize(lambda_ones, DUMMY_VAR__);
-            stan::math::fill(lambda_ones, DUMMY_VAR__);
-            stan::math::assign(lambda_ones,loadings_to_ones(F_inds, F_inds_num, pstream__));
-            current_statement_begin__ = 148;
+            current_statement_begin__ = 147;
             validate_non_negative_index("omega2", "N", N);
             validate_non_negative_index("omega2", "F", F);
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> omega2(N, F);
             stan::math::initialize(omega2, DUMMY_VAR__);
             stan::math::fill(omega2, DUMMY_VAR__);
             stan::math::assign(omega2,omega_two(lambda_loc_mat, F_inds, F_inds_num, theta_cor_L, shat, pstream__));
+            current_statement_begin__ = 148;
+            validate_non_negative_index("omega1_expected", "1", 1);
+            validate_non_negative_index("omega1_expected", "F", F);
+            Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> omega1_expected(1, F);
+            stan::math::initialize(omega1_expected, DUMMY_VAR__);
+            stan::math::fill(omega1_expected, DUMMY_VAR__);
+            stan::math::assign(omega1_expected,omega_one(lambda_loc_mat, F_inds, F_inds_num, stan::math::exp(rep_matrix(nu_sca, 1)), pstream__));
             current_statement_begin__ = 149;
+            validate_non_negative_index("omega2_expected", "1", 1);
+            validate_non_negative_index("omega2_expected", "F", F);
+            Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> omega2_expected(1, F);
+            stan::math::initialize(omega2_expected, DUMMY_VAR__);
+            stan::math::fill(omega2_expected, DUMMY_VAR__);
+            stan::math::assign(omega2_expected,omega_two(lambda_loc_mat, F_inds, F_inds_num, theta_cor_L, stan::math::exp(rep_matrix(nu_sca, 1)), pstream__));
+            current_statement_begin__ = 150;
             validate_non_negative_index("theta_cor", "(F * 2)", (F * 2));
             validate_non_negative_index("theta_cor", "(F * 2)", (F * 2));
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> theta_cor((F * 2), (F * 2));
@@ -1132,15 +1144,7 @@ public:
                     vars__.push_back(omega1(j_1__, j_2__));
                 }
             }
-            current_statement_begin__ = 146;
-            size_t lambda_ones_j_2_max__ = J;
-            size_t lambda_ones_j_1_max__ = F;
-            for (size_t j_2__ = 0; j_2__ < lambda_ones_j_2_max__; ++j_2__) {
-                for (size_t j_1__ = 0; j_1__ < lambda_ones_j_1_max__; ++j_1__) {
-                    vars__.push_back(lambda_ones(j_1__, j_2__));
-                }
-            }
-            current_statement_begin__ = 148;
+            current_statement_begin__ = 147;
             size_t omega2_j_2_max__ = F;
             size_t omega2_j_1_max__ = N;
             for (size_t j_2__ = 0; j_2__ < omega2_j_2_max__; ++j_2__) {
@@ -1148,7 +1152,23 @@ public:
                     vars__.push_back(omega2(j_1__, j_2__));
                 }
             }
+            current_statement_begin__ = 148;
+            size_t omega1_expected_j_2_max__ = F;
+            size_t omega1_expected_j_1_max__ = 1;
+            for (size_t j_2__ = 0; j_2__ < omega1_expected_j_2_max__; ++j_2__) {
+                for (size_t j_1__ = 0; j_1__ < omega1_expected_j_1_max__; ++j_1__) {
+                    vars__.push_back(omega1_expected(j_1__, j_2__));
+                }
+            }
             current_statement_begin__ = 149;
+            size_t omega2_expected_j_2_max__ = F;
+            size_t omega2_expected_j_1_max__ = 1;
+            for (size_t j_2__ = 0; j_2__ < omega2_expected_j_2_max__; ++j_2__) {
+                for (size_t j_1__ = 0; j_1__ < omega2_expected_j_1_max__; ++j_1__) {
+                    vars__.push_back(omega2_expected(j_1__, j_2__));
+                }
+            }
+            current_statement_begin__ = 150;
             size_t theta_cor_j_2_max__ = (F * 2);
             size_t theta_cor_j_1_max__ = (F * 2);
             for (size_t j_2__ = 0; j_2__ < theta_cor_j_2_max__; ++j_2__) {
@@ -1286,21 +1306,30 @@ public:
                 param_names__.push_back(param_name_stream__.str());
             }
         }
-        size_t lambda_ones_j_2_max__ = J;
-        size_t lambda_ones_j_1_max__ = F;
-        for (size_t j_2__ = 0; j_2__ < lambda_ones_j_2_max__; ++j_2__) {
-            for (size_t j_1__ = 0; j_1__ < lambda_ones_j_1_max__; ++j_1__) {
-                param_name_stream__.str(std::string());
-                param_name_stream__ << "lambda_ones" << '.' << j_1__ + 1 << '.' << j_2__ + 1;
-                param_names__.push_back(param_name_stream__.str());
-            }
-        }
         size_t omega2_j_2_max__ = F;
         size_t omega2_j_1_max__ = N;
         for (size_t j_2__ = 0; j_2__ < omega2_j_2_max__; ++j_2__) {
             for (size_t j_1__ = 0; j_1__ < omega2_j_1_max__; ++j_1__) {
                 param_name_stream__.str(std::string());
                 param_name_stream__ << "omega2" << '.' << j_1__ + 1 << '.' << j_2__ + 1;
+                param_names__.push_back(param_name_stream__.str());
+            }
+        }
+        size_t omega1_expected_j_2_max__ = F;
+        size_t omega1_expected_j_1_max__ = 1;
+        for (size_t j_2__ = 0; j_2__ < omega1_expected_j_2_max__; ++j_2__) {
+            for (size_t j_1__ = 0; j_1__ < omega1_expected_j_1_max__; ++j_1__) {
+                param_name_stream__.str(std::string());
+                param_name_stream__ << "omega1_expected" << '.' << j_1__ + 1 << '.' << j_2__ + 1;
+                param_names__.push_back(param_name_stream__.str());
+            }
+        }
+        size_t omega2_expected_j_2_max__ = F;
+        size_t omega2_expected_j_1_max__ = 1;
+        for (size_t j_2__ = 0; j_2__ < omega2_expected_j_2_max__; ++j_2__) {
+            for (size_t j_1__ = 0; j_1__ < omega2_expected_j_1_max__; ++j_1__) {
+                param_name_stream__.str(std::string());
+                param_name_stream__ << "omega2_expected" << '.' << j_1__ + 1 << '.' << j_2__ + 1;
                 param_names__.push_back(param_name_stream__.str());
             }
         }
@@ -1415,21 +1444,30 @@ public:
                 param_names__.push_back(param_name_stream__.str());
             }
         }
-        size_t lambda_ones_j_2_max__ = J;
-        size_t lambda_ones_j_1_max__ = F;
-        for (size_t j_2__ = 0; j_2__ < lambda_ones_j_2_max__; ++j_2__) {
-            for (size_t j_1__ = 0; j_1__ < lambda_ones_j_1_max__; ++j_1__) {
-                param_name_stream__.str(std::string());
-                param_name_stream__ << "lambda_ones" << '.' << j_1__ + 1 << '.' << j_2__ + 1;
-                param_names__.push_back(param_name_stream__.str());
-            }
-        }
         size_t omega2_j_2_max__ = F;
         size_t omega2_j_1_max__ = N;
         for (size_t j_2__ = 0; j_2__ < omega2_j_2_max__; ++j_2__) {
             for (size_t j_1__ = 0; j_1__ < omega2_j_1_max__; ++j_1__) {
                 param_name_stream__.str(std::string());
                 param_name_stream__ << "omega2" << '.' << j_1__ + 1 << '.' << j_2__ + 1;
+                param_names__.push_back(param_name_stream__.str());
+            }
+        }
+        size_t omega1_expected_j_2_max__ = F;
+        size_t omega1_expected_j_1_max__ = 1;
+        for (size_t j_2__ = 0; j_2__ < omega1_expected_j_2_max__; ++j_2__) {
+            for (size_t j_1__ = 0; j_1__ < omega1_expected_j_1_max__; ++j_1__) {
+                param_name_stream__.str(std::string());
+                param_name_stream__ << "omega1_expected" << '.' << j_1__ + 1 << '.' << j_2__ + 1;
+                param_names__.push_back(param_name_stream__.str());
+            }
+        }
+        size_t omega2_expected_j_2_max__ = F;
+        size_t omega2_expected_j_1_max__ = 1;
+        for (size_t j_2__ = 0; j_2__ < omega2_expected_j_2_max__; ++j_2__) {
+            for (size_t j_1__ = 0; j_1__ < omega2_expected_j_1_max__; ++j_1__) {
+                param_name_stream__.str(std::string());
+                param_name_stream__ << "omega2_expected" << '.' << j_1__ + 1 << '.' << j_2__ + 1;
                 param_names__.push_back(param_name_stream__.str());
             }
         }

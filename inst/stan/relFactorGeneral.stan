@@ -14,9 +14,9 @@ functions {
       omega[,f] = numerator[f] ./ (numerator[f] + vhat_sum[,f]);
     }
     return(omega);
-    
+
   }
-  
+
   // Creates FxJ matrix of binary codes; 1 where F has a loading.
   matrix loadings_to_ones(int[,] F_inds,int[] F_inds_num){
     int F = size(F_inds);
@@ -30,7 +30,7 @@ functions {
     }
     return(lambda_ones);
   }
-  
+
   vector ones(int num){
     vector[num] ones;
     for(n in 1:num){
@@ -38,7 +38,7 @@ functions {
     }
     return(ones);
   }
-  
+
   // Returns NxF matrix of omegas
   matrix omega_two(matrix lambda_loc_mat, int[,] F_inds, int[] F_inds_num, matrix theta_cor_L, matrix shat){
     int N = rows(shat);
@@ -57,16 +57,16 @@ functions {
     }
     return(omega);
   }
-  
+
 }
 data {
   int N;
   int J;
   int F;
   int F_inds[F,J];
-  
+
   matrix[N,J] x;
-  
+
 }
 
 transformed data {
@@ -81,8 +81,8 @@ transformed data {
     }
   }
   N_loadings = sum(F_inds_num);
-  
-  
+
+
 }
 
 parameters {
@@ -95,7 +95,7 @@ parameters {
   //Latents
   matrix[N,F*2] theta_z;
   cholesky_factor_corr[F*2] theta_cor_L;
-  
+
 }
 
 transformed parameters {
@@ -104,7 +104,7 @@ transformed parameters {
   matrix[F,J] lambda_sca_mat;
   matrix[N,J] yhat;
   matrix[N,J] shat;
-  
+
   // Init to zero
   for(f in 1:F){
     for(j in 1:J){
@@ -120,7 +120,7 @@ transformed parameters {
       lambda_sca_mat[f,F_inds[f,1:F_inds_num[f]]] = lambda_sca[count:(count - 1 + F_inds_num[f])];
       count += F_inds_num[f];
     }
-    
+
   }
   //Predictions
   yhat = rep_matrix(nu_loc,N) + theta[,1:F]*lambda_loc_mat;
@@ -135,7 +135,7 @@ model {
   nu_sca ~ std_normal();
   to_vector(theta_z) ~ std_normal();
   theta_cor_L ~ lkj_corr_cholesky(1);
-  
+
   // Likelihood
   to_vector(x) ~ normal(to_vector(yhat),to_vector(shat));
 }
@@ -143,8 +143,9 @@ model {
 generated quantities {
   //matrix omega_one(matrix lambda_loc_mat,int[,] F_inds, int[] F_inds_num, matrix shat){
   matrix[N,F] omega1 = omega_one(lambda_loc_mat, F_inds, F_inds_num, shat);
-  matrix[F,J] lambda_ones = loadings_to_ones(F_inds,F_inds_num);
   // matrix omega_two(matrix lambda_loc_mat, int[,] F_inds, int[] F_inds_num, matrix theta_cor_L, matrix shat){
   matrix[N,F] omega2 = omega_two(lambda_loc_mat, F_inds, F_inds_num, theta_cor_L, shat);
+  matrix[1,F] omega1_expected = omega_one(lambda_loc_mat,F_inds,F_inds_num,exp(rep_matrix(nu_sca,1)));
+  matrix[1,F] omega2_expected = omega_two(lambda_loc_mat,F_inds,F_inds_num,theta_cor_L,exp(rep_matrix(nu_sca,1)));
   matrix[F*2,F*2] theta_cor = multiply_lower_tri_self_transpose(theta_cor_L);
 }
