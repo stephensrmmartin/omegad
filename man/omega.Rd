@@ -11,11 +11,29 @@ omega(formula, data, ...)
 
 \item{data}{Data frame containing indicators as columns.}
 
-\item{...}{Options passed onto sampling.}
+\item{...}{Options passed onto \code{\link[rstan]{sampling}}.}
 }
 \value{
 omegad object.
 }
 \description{
-Fit Omega model
+Fits the "Reliability factor" model for varying omega coefficients.
+}
+\details{
+\code{omegad} takes a formula, or list of formulas, describing the factor structure.
+If a unidimensional structure is desired (i.e., one latent variable), then the formula
+should be as follows:
+
+\code{factorName ~ indicator1 + indicator2 + indicatorJ}
+
+When a multidimensional structure is desired, then the formula argument should be a list of formulas.
+For example, if one has 5 items for agreeableness and openness:
+
+\code{list(agree ~ A1 + A2 + A3 + A4 + A5, open ~ O1 + O2 + O3 + O4 + O5)}
+
+If \code{\link{lavaan}} is familiar to you, then a lavaan formula such as:
+\code{agree =~ A1 + A2} is identical to an \code{omegad} formula of \code{agree ~ A1 + A2}.
+
+Note that omegad imposes a positivity constraint on all loadings.
+This means that *all* reverse-scored items should be reflected so that all items are in the same direction.
 }
