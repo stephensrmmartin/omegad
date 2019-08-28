@@ -31,7 +31,7 @@
 #' @export
 #'
 #' @examples
-omega <- function(formula,data,...){
+omegad <- function(formula,data,...){
   dots <- list(...)
   if(is.null(dots$cores)){
     dots$cores <- getOption('mc.cores')
