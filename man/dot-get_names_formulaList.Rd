@@ -11,6 +11,9 @@
 
 \item{formula}{Logical (Default: FALSE). If TRUE, returns the rhs formula terms (e.g., I(x^2), rather than x)}
 }
+\value{
+List containing factor names (factor) and indicator names (indicator).
+}
 \description{
 Takes formula and returns names
 }

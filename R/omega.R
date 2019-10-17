@@ -30,9 +30,14 @@
 #' @return omegad object.
 #' @export
 #'
-#' @examples
 omegad <- function(formula,data,...){
   dots <- list(...)
+  if(is.null(dots$gp)){
+    gp <- FALSE
+  } else {
+    gp <- dots$gp
+    dots$gp <- NULL
+  }
   if(is.null(dots$cores)){
     dots$cores <- getOption('mc.cores')
     if(is.null(dots$cores)){
@@ -51,7 +56,14 @@ omegad <- function(formula,data,...){
 
   d <- .parse_formula(formula,data)
   pars <- c('lambda_loc_mat','lambda_sca_mat','nu_loc','nu_sca','theta_cor','theta','omega1','omega2','omega1_expected','omega2_expected')
-  args <- c(list(object=stanmodels$relFactorGeneral,data=d$stan_data,pars=pars),dots)
+  if(gp){
+    model <- stanmodels$relFactorGeneralGP
+    pars <- c(pars,'linear_beta','alpha','rho','theta_sca')
+    pars[pars == 'theta'] <- 'theta_loc'
+  } else {
+    model <- stanmodels$relFactorGeneral
+  }
+  args <- c(list(object=model,data=d$stan_data,pars=pars),dots)
   stanOut <- do.call('sampling',args=args)
 
   out <- list(formula=formula,data=d$model.frame,stan_data=d$stan_data,fit=stanOut)
@@ -127,9 +139,8 @@ omegad <- function(formula,data,...){
 #' @param formList List of 2-sided Formulas
 #' @param formula Logical (Default: FALSE). If TRUE, returns the rhs formula terms (e.g., I(x^2), rather than x)
 #'
-#' @return
+#' @return List containing factor names (factor) and indicator names (indicator).
 #' @keywords internal
-#'
 .get_names_formulaList <- function(formList,formula=FALSE){
   fNames <- lapply(formList,function(f){
     all.vars(f)[1]
