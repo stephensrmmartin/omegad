@@ -58,8 +58,10 @@ omegad <- function(formula,data,...){
   pars <- c('lambda_loc_mat','lambda_sca_mat','nu_loc','nu_sca','theta_cor','theta','omega1','omega2','omega1_expected','omega2_expected')
   if(gp){
     model <- stanmodels$relFactorGeneralGP
-    pars <- c(pars,'linear_beta','alpha','rho','theta_sca')
-    pars[pars == 'theta'] <- 'theta_loc'
+    ## pars <- c(pars,'linear_beta','alpha','rho','theta_sca')
+    ## pars <- c(pars,'rho','theta_sca')
+    pars <- c(pars,'rho')
+    ## pars[pars == 'theta'] <- 'theta_loc'
   } else {
     model <- stanmodels$relFactorGeneral
   }

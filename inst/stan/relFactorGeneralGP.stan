@@ -83,8 +83,10 @@ data {
 transformed data {
   int F_inds_num[F];
   int N_loadings;
+  vector<lower=0>[F] alpha;
   for(f in 1:F){
     F_inds_num[f] = 0;
+    alpha[f] = 1;
     for(j in 1:J){
       if(F_inds[f,j] != 0){
         F_inds_num[f] += 1;
@@ -111,7 +113,7 @@ parameters {
   // GP
   //row_vector[F] linear_beta;
   vector<lower=0>[F] rho;
-  vector<lower=0>[F] alpha;
+  // vector<lower=0>[F] alpha;
   matrix[N,F] gp_z;
 
 }
@@ -121,6 +123,7 @@ transformed parameters {
   matrix[N,F] theta_sca = theta_sca_z;
   matrix[F,J] lambda_loc_mat;
   matrix[F,J] lambda_sca_mat;
+  matrix[N,F*2] theta;
   matrix[N,J] yhat;
   matrix[N,J] shat;
   // theta_sca += theta_loc .* rep_matrix(linear_beta,N);
@@ -128,6 +131,8 @@ transformed parameters {
   for(f in 1:F){
     theta_sca[,f] += cholesky_decompose(rbf_kernel(theta_loc[,f],alpha[f],rho[f]))*gp_z[,f];
     // theta[,(f+F)] += cholesky_decompose(rbf_kernel(theta[,f],alpha[f],rho[f]))*gp_z[,f];
+    theta[,f] = theta_loc[,f];
+    theta[,(F+f)] = theta_sca[,f];
   }
 
   // Init to zero
@@ -165,7 +170,7 @@ model {
   theta_cor_L ~ lkj_corr_cholesky(1);
   //linear_beta ~ std_normal();
   to_vector(gp_z) ~ std_normal();
-  alpha ~ student_t(3,0,2);
+  // alpha ~ student_t(3,0,2);
   rho ~ normal(0,2);
 
 
