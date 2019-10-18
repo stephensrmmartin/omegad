@@ -58,10 +58,7 @@ omegad <- function(formula,data,...){
   pars <- c('lambda_loc_mat','lambda_sca_mat','nu_loc','nu_sca','theta_cor','theta','omega1','omega2','omega1_expected','omega2_expected')
   if(gp){
     model <- stanmodels$relFactorGeneralGP
-    ## pars <- c(pars,'linear_beta','alpha','rho','theta_sca')
-    ## pars <- c(pars,'rho','theta_sca')
-    pars <- c(pars,'rho')
-    ## pars[pars == 'theta'] <- 'theta_loc'
+    pars <- c(pars,'alpha','rho')
   } else {
     model <- stanmodels$relFactorGeneral
   }
@@ -76,9 +73,9 @@ omegad <- function(formula,data,...){
 
 #' Parses formula and data into stan_data structure
 #'
-#' @param formula ...
-#' @param data ...
-#' @param ... ...
+#' @param formula Formula or list of formulas with factor name on LHS, indicators on RHS.
+#' @param data data.frame containing indicators.
+#' @param ... Currently not used.
 #'
 #' @import Formula
 #' @return stan_data list.

@@ -7,11 +7,11 @@
 .parse_formula(formula, data, ...)
 }
 \arguments{
-\item{formula}{...}
+\item{formula}{Formula or list of formulas with factor name on LHS, indicators on RHS.}
 
-\item{data}{...}
+\item{data}{data.frame containing indicators.}
 
-\item{...}{...}
+\item{...}{Currently not used.}
 }
 \value{
 stan_data list.

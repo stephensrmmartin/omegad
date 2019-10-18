@@ -109,10 +109,10 @@ parameters {
   cholesky_factor_corr[F] theta_cor_L;
 
   // GP
-  //row_vector[F] linear_beta;
-  vector<lower=0>[F] rho;
-  vector<lower=0>[F] alpha;
-  matrix[N,F] gp_z;
+  row_vector[F] linear_beta;
+  // vector<lower=0>[F] rho;
+  // vector<lower=0>[F] alpha;
+  // matrix[N,F] gp_z;
 
 }
 
@@ -127,7 +127,8 @@ transformed parameters {
   // theta_sca += theta_loc .* rep_matrix(linear_beta,N);
   // theta[,(F+1):(F*2)] += theta[,1:F] .* rep_matrix(linear_beta,N);
   for(f in 1:F){
-    theta_sca[,f] += cholesky_decompose(rbf_kernel(theta_loc[,f],alpha[f],rho[f]))*gp_z[,f];
+    // theta_sca[,f] += cholesky_decompose(rbf_kernel(theta_loc[,f],alpha[f],rho[f]))*gp_z[,f];
+    theta_sca[,f] += theta_loc[,f]*linear_beta[f];
     theta[,f] = theta_loc[,f];
     theta[,F+f] = theta_sca[,f];
     // theta[,(f+F)] += cholesky_decompose(rbf_kernel(theta[,f],alpha[f],rho[f]))*gp_z[,f];
@@ -166,12 +167,12 @@ model {
   to_vector(theta_loc_z) ~ std_normal();
   to_vector(theta_sca_z) ~ std_normal();
   theta_cor_L ~ lkj_corr_cholesky(1);
-  //linear_beta ~ std_normal();
-  to_vector(gp_z) ~ std_normal();
-  alpha ~ student_t(3,0,2);
+
+  linear_beta ~ std_normal();
+
+  // to_vector(gp_z) ~ std_normal();
+  // alpha ~ student_t(3,0,2);
   // rho ~ normal(0,2);
-  // rho ~ gamma(5,10)
-  rho ~ inv_gamma(5,5);
 
 
   // Likelihood
