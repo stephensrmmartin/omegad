@@ -38,6 +38,12 @@ omegad <- function(formula,data,...){
     gp <- dots$gp
     dots$gp <- NULL
   }
+  if(is.null(dots$M)){
+      M <- 10
+  } else {
+      M <- dots$M
+      dots$M <- NULL
+  }
   if(is.null(dots$cores)){
     dots$cores <- getOption('mc.cores')
     if(is.null(dots$cores)){
@@ -57,7 +63,8 @@ omegad <- function(formula,data,...){
   d <- .parse_formula(formula,data)
   pars <- c('lambda_loc_mat','lambda_sca_mat','nu_loc','nu_sca','theta_cor','theta','omega1','omega2','omega1_expected','omega2_expected')
   if(gp){
-    model <- stanmodels$relFactorGeneralGP
+    d$stan_data$M <- M
+    model <- stanmodels$relFactorGeneralGPBP
     pars <- c(pars,'alpha','rho')
   } else {
     model <- stanmodels$relFactorGeneral
