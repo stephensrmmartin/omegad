@@ -65,7 +65,7 @@ omegad <- function(formula,data,...){
   if(gp){
     d$stan_data$M <- M
     model <- stanmodels$relFactorGeneralGPBP
-    pars <- c(pars,'alpha','rho','linear_beta')
+    pars <- c(pars,'gp_alpha','gp_rho','gp_linear')
   } else {
     model <- stanmodels$relFactorGeneral
   }
