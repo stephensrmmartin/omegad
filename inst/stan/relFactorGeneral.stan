@@ -67,6 +67,9 @@ data {
 
   matrix[N,J] x;
 
+  int P; // Number of exogenous covariates for theta_sca
+  matrix[N,P] exo_x; // Design matrix for exogenous covariates.
+
 }
 
 transformed data {
@@ -96,6 +99,10 @@ parameters {
   matrix[N,F*2] theta_z;
   cholesky_factor_corr[F*2] theta_cor_L;
 
+  // Exogenous model for scale factors
+  // Use P-1; R will pass in an intercept column, which we want to be zero.
+  matrix[P-1,F] exo_beta;
+
 }
 
 transformed parameters {
@@ -105,6 +112,8 @@ transformed parameters {
   matrix[N,J] yhat;
   matrix[N,J] shat;
 
+  // Exogenous predictions
+  theta[,(F+1):(F*2)] += exo_x * append_row(rep_row_vector(0,F),exo_beta);
   // Init to zero
   for(f in 1:F){
     for(j in 1:J){
@@ -129,12 +138,16 @@ transformed parameters {
 
 model {
   // Priors
+  /* Measurement */
   lambda_loc ~ std_normal();
   lambda_sca ~ std_normal();
   nu_loc ~ std_normal();
   nu_sca ~ std_normal();
   to_vector(theta_z) ~ std_normal();
   theta_cor_L ~ lkj_corr_cholesky(1);
+
+  /* Exogenous */
+  to_vector(exo_beta) ~ std_normal();
 
   // Likelihood
   to_vector(x) ~ normal(to_vector(yhat),to_vector(shat));

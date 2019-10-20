@@ -126,11 +126,15 @@ data {
 
   matrix[N,J] x;
 
+  int P; // Number of exogenous covariates for theta_sca
+  matrix[N,P] exo_x; // Design matrix for exogenous covariates.
+
 }
 
 transformed data {
   real L = 3.0*5.0/2.0; // gp Constant. May change later to vary based on current estimated latent values.
   vector[M] gp_lambdas = lambdas(L,M);
+  matrix[N,M] gp_exo_phi[P-1];
   int F_inds_num[F];
   int N_loadings;
   for(f in 1:F){
@@ -143,6 +147,9 @@ transformed data {
   }
   N_loadings = sum(F_inds_num);
 
+  for(p in 1:(P-1)){
+    gp_exo_phi[p] = basis_phis(L, M, exo_x[,(p+1)]);
+  }
 
 }
 
@@ -164,6 +171,14 @@ parameters {
   vector<lower=0>[F] gp_alpha;
   matrix[M,F] gp_z;
 
+
+  //Exogenous model for scale factors
+  //Using independent GPs (so kernel is based on distance on each variable, not both).
+  matrix[P-1, F] exo_gp_linear;
+  matrix<lower=0>[P-1,F] exo_gp_rho;
+  matrix<lower=0>[P-1,F] exo_gp_alpha;
+  matrix[M,F] exo_gp_z[P-1];
+
 }
 
 transformed parameters {
@@ -175,17 +190,25 @@ transformed parameters {
   matrix[N,J] yhat;
   matrix[N,J] shat;
   matrix[N,F*2] theta;
+  /* Latent GP */
   for(f in 1:F){
-    // theta_sca[,f] += cholesky_decompose(rbf_kernel(theta_loc[,f],alpha[f],rho[f]))*gp_z[,f];
     gp_theta_phi[f] = basis_phis(L, M, theta_loc[,f]);
-    // theta_sca[,f] += spd_gp(gp_theta_phi[f], alpha[f],rho[f],gp_lambdas)*gp_z[,f];
-    theta_sca[,f] += spd_gp_fast(gp_theta_phi[f], gp_alpha[f], gp_rho[f], gp_lambdas, gp_z[,f]);
-    theta_sca[,f] += theta_loc[,f] * gp_linear[f];
-    theta[,f] = theta_loc[,f];
-    theta[,F+f] = theta_sca[,f];
+    theta_sca[,f] += theta_loc[,f] * gp_linear[f]; // Linear
+    theta_sca[,f] += spd_gp_fast(gp_theta_phi[f], gp_alpha[f], gp_rho[f], gp_lambdas, gp_z[,f]); // SPD-BF-RBF
+  }
+  /* Exogenous GP */
+  for(p in 1:(P-1)){
+    for(f in 1:F){
+      theta_sca[,f] += exo_x[,(p+1)]*exo_gp_linear[p,f]; // Linear
+      theta_sca[,f] += spd_gp_fast(gp_exo_phi[p], exo_gp_alpha[p,f], exo_gp_rho[p,f],gp_lambdas, exo_gp_z[p,1:M,f]);
+    }
   }
 
-  // Init to zero
+  /* Repackage */
+  theta[,1:F] = theta_loc;
+  theta[,(F+1):(2*F)] = theta_sca;
+
+  // Init Loadings to zero
   for(f in 1:F){
     for(j in 1:J){
       lambda_loc_mat[f,j] = 0;
@@ -209,6 +232,7 @@ transformed parameters {
 
 model {
   // Priors
+  /* Measurement */
   // lambda_loc ~ std_normal();
   // lambda_sca ~ std_normal();
   lambda_loc ~ gamma(6,10);
@@ -218,10 +242,20 @@ model {
   to_vector(theta_loc_z) ~ std_normal();
   to_vector(theta_sca_z) ~ std_normal();
   theta_cor_L ~ lkj_corr_cholesky(1);
+
+  /* GP */
   gp_linear ~ std_normal();
   to_vector(gp_z) ~ std_normal();
   gp_alpha ~ student_t(3,0,2);
   gp_rho ~ std_normal();
+
+  /* Exogenous GPs */
+  to_vector(exo_gp_linear) ~ std_normal();
+  to_vector(exo_gp_alpha) ~ student_t(3,0,2);
+  to_vector(exo_gp_rho) ~ std_normal();
+  for(p in 1:(P-1)){
+    to_vector(exo_gp_z[p]) ~ std_normal();
+  }
   // rho ~ normal(0,2);
   // rho ~ gamma(5,10)
   // rho ~ inv_gamma(5,5);
