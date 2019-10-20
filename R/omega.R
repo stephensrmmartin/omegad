@@ -65,14 +65,16 @@ omegad <- function(formula,data,...){
   if(gp){
     d$stan_data$M <- M
     model <- stanmodels$relFactorGeneralGPBP
-    pars <- c(pars,'gp_alpha','gp_rho','gp_linear')
+    pars <- c(pars,'gp_alpha','gp_rho','gp_linear','exo_gp_alpha','exo_gp_rho','exo_gp_linear')
   } else {
+    pars <- c(pars,'exo_beta')
     model <- stanmodels$relFactorGeneral
   }
   args <- c(list(object=model,data=d$stan_data,pars=pars),dots)
   stanOut <- do.call('sampling',args=args)
 
-  out <- list(formula=formula,data=d$model.frame,stan_data=d$stan_data,fit=stanOut)
+  meta <- list(gp=gp,M=M)
+  out <- list(formula=formula,data=d$model.frame,stan_data=d$stan_data,fit=stanOut,meta=meta)
   class(out) <- 'omegad'
 
   return(out)
