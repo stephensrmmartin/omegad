@@ -109,9 +109,9 @@ omegad <- function(formula,data,...){
   }
 
   # Separate formulas
-  forms.rhs <- lapply(forms,FUN=function(f){
-    formula(f,lhs=0,rhs=1)
-  })
+  ## forms.rhs <- lapply(forms,FUN=function(f){
+  ##   formula(f,lhs=0,rhs=1)
+  ## })
 
   # Get names
   fnames <- .get_names_formulaList(forms,formula=TRUE)
@@ -128,7 +128,23 @@ omegad <- function(formula,data,...){
     n_after <- nrow(mf)
     warning('Removing ',n_before - n_after, ' incomplete cases.')
   }
-  ## Remove incompletes
+
+  # Extract out Exogenous variables
+  whichExoForm <- which(fnames$factor == "Error")
+  if(any(whichExoForm)){
+      exoForm.rhs <- form.rhs[[whichExoForm]]
+      forms[[whichExoForm]] <- NULL
+      forms.rhs[[whichExoForm]] <- NULL
+  } else {
+      exoForm.rhs <- as.Formula(~ 1)
+  }
+  mm.exo <- model.matrix(exoForm.rhs, mf)
+  P <- ncol(mm.exo)
+
+  ## Indicator matrix
+  fnames <- .get_names_formulaList(forms,formula=TRUE)
+  form.rhs <- do.call(c,fnames$indicator)
+  form.rhs <- as.Formula(paste0('~ ',paste0(unique(form.rhs),collapse = ' + ')))
   mm <- model.matrix(form.rhs,mf)[,-1] ## No intercept
 
   # Loading indicator matrix
@@ -137,9 +153,9 @@ omegad <- function(formula,data,...){
   # Misc Stan data
   N <- nrow(mm)
   J <- ncol(mm)
-  `F` <- length(forms.rhs)
+  `F` <- nrow(F_inds)
 
-  out <- list(stan_data = list(N=N,J=J,`F`=`F`,F_inds=F_inds,x=mm), model.frame = mf)
+  out <- list(stan_data = list(N=N,J=J,`F`=`F`,F_inds=F_inds,x=mm,exo_x=mm.exo,P=P), model.frame = mf)
 }
 
 #' Takes formula and returns names
