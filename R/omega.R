@@ -136,9 +136,10 @@ omegad <- function(formula,data,...){
   # Extract out Exogenous variables
   whichExoForm <- which(fnames$factor == "Error")
   if(any(whichExoForm)){
-      exoForm.rhs <- form.rhs[[whichExoForm]]
+      exoForm.rhs <- formula(forms[[whichExoForm]],lhs=0,rhs=1)
+      print(exoForm.rhs)
       forms[[whichExoForm]] <- NULL
-      forms.rhs[[whichExoForm]] <- NULL
+      ## forms.rhs[[whichExoForm]] <- NULL
   } else {
       exoForm.rhs <- as.Formula(~ 1)
   }
