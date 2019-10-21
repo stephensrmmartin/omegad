@@ -34,52 +34,67 @@
 #' @return omegad object.
 #' @export
 #'
-omegad <- function(formula,data,...){
+omegad <- function(formula, data, ...) {
   dots <- list(...)
-  if(is.null(dots$gp)){
+  if (is.null(dots$gp)) {
     gp <- FALSE
   } else {
     gp <- dots$gp
     dots$gp <- NULL
   }
-  if(is.null(dots$M)){
+  if (is.null(dots$M)) {
       M <- 10
   } else {
       M <- dots$M
       dots$M <- NULL
   }
-  if(is.null(dots$cores)){
-    dots$cores <- getOption('mc.cores')
-    if(is.null(dots$cores)){
+  if (is.null(dots$cores)) {
+    dots$cores <- getOption("mc.cores")
+    if (is.null(dots$cores)) {
       dots$cores <- detectCores()
     }
   }
-  if(is.null(dots$control)){
+  if (is.null(dots$control)) {
     dots$control <- list(adapt_delta = .95)
   }
-  if(is.null(dots$control$adapt_delta)){
+  if (is.null(dots$control$adapt_delta)) {
     dots$control$adapt_delta <- .95
   }
-  if(is.null(dots$chains)){
+  if (is.null(dots$chains)) {
     dots$chains <- 4
   }
 
-  d <- .parse_formula(formula,data)
-  pars <- c('lambda_loc_mat','lambda_sca_mat','nu_loc','nu_sca','theta_cor','theta','omega1','omega2','omega1_expected','omega2_expected')
-  if(gp){
+  d <- .parse_formula(formula, data)
+  pars <- c("lambda_loc_mat",
+            "lambda_sca_mat",
+            "nu_loc",
+            "nu_sca",
+            "theta_cor",
+            "theta",
+            "omega1",
+            "omega2",
+            "omega1_expected",
+            "omega2_expected")
+  if (gp) {
     d$stan_data$M <- M
     model <- stanmodels$relFactorGeneralGPBP
-    pars <- c(pars,'gp_alpha','gp_rho','gp_linear','exo_gp_alpha','exo_gp_rho','exo_gp_linear')
+    pars <- c(pars,
+              "gp_alpha",
+              "gp_rho",
+              "gp_linear",
+              "exo_gp_alpha",
+              "exo_gp_rho",
+              "exo_gp_linear")
   } else {
-    pars <- c(pars,'exo_beta')
+    pars <- c(pars, "exo_beta")
     model <- stanmodels$relFactorGeneral
   }
-  args <- c(list(object=model,data=d$stan_data,pars=pars),dots)
-  stanOut <- do.call('sampling',args=args)
+  args <- c(list(object = model, data = d$stan_data, pars = pars), dots)
+  stanOut <- do.call("sampling", args = args)
 
-  meta <- list(gp=gp,M=M)
-  out <- list(formula=formula,data=d$model.frame,stan_data=d$stan_data,fit=stanOut,meta=meta)
-  class(out) <- 'omegad'
+  meta <- list(gp = gp, M = M)
+  out <- list(formula = formula, data = d$model.frame, stan_data = d$stan_data, fit = stanOut, meta = meta)
+  class(out) <- "omegad"
 
   return(out)
 }
@@ -94,49 +109,49 @@ omegad <- function(formula,data,...){
 #' @return stan_data list.
 #' @keywords internal
 #'
-.parse_formula <- function(formula,data,...){
-  if(!is.list(formula)) {
+.parse_formula <- function(formula, data, ...) {
+  if (!is.list(formula)) {
     forms <- list(formula)
   } else {
     forms <- formula
   }
   # Convert to Formula (easier)
-  forms <- lapply(forms,function(f){
+  forms <- lapply(forms, function(f) {
     as.Formula(f)
   })
 
   # Check structure
-  for(f in 1:length(forms)){
-    if(length(forms[[f]])[1] == 0){
-      stop('Factor name should be provided on LHS of formula.')
+  for (f in 1:length(forms)) {
+    if (length(forms[[f]])[1] == 0) {
+      stop("Factor name should be provided on LHS of formula.")
     }
   }
 
   # Separate formulas
-  ## forms.rhs <- lapply(forms,FUN=function(f){
-  ##   formula(f,lhs=0,rhs=1)
+  ## forms.rhs <- lapply(forms, FUN = function(f) {
+  ##   formula(f, lhs = 0, rhs = 1)
   ## })
 
   # Get names
-  fnames <- .get_names_formulaList(forms,formula=TRUE)
+  fnames <- .get_names_formulaList(forms, formula = TRUE)
 
   # Combine all rhs formulas for model frame
-  form.rhs <- do.call(c,fnames$indicator)
-  form.rhs <- as.Formula(paste0('~ ',paste0(unique(form.rhs),collapse = ' + ')))
+  form.rhs <- do.call(c, fnames$indicator)
+  form.rhs <- as.Formula(paste0("~ ", paste0(unique(form.rhs), collapse = " + ")))
 
   # Model frame
-  mf <- model.frame(form.rhs,data=data,na.action = na.pass)
-  if(any(is.na(mf))){
+  mf <- model.frame(form.rhs, data = data, na.action = na.pass)
+  if (any(is.na(mf))) {
     n_before <- nrow(mf)
-    mf <- mf[complete.cases(mf),]
+    mf <- mf[complete.cases(mf), ]
     n_after <- nrow(mf)
-    warning('Removing ',n_before - n_after, ' incomplete cases.')
+    warning("Removing ", n_before - n_after, " incomplete cases.")
   }
 
   # Extract out Exogenous variables
   whichExoForm <- which(fnames$factor == "Error")
-  if(any(whichExoForm)){
-      exoForm.rhs <- formula(forms[[whichExoForm]],lhs=0,rhs=1)
+  if (any(whichExoForm)) {
+      exoForm.rhs <- formula(forms[[whichExoForm]], lhs = 0, rhs = 1)
       print(exoForm.rhs)
       forms[[whichExoForm]] <- NULL
       ## forms.rhs[[whichExoForm]] <- NULL
@@ -147,20 +162,20 @@ omegad <- function(formula,data,...){
   P <- ncol(mm.exo)
 
   ## Indicator matrix
-  fnames <- .get_names_formulaList(forms,formula=TRUE)
-  form.rhs <- do.call(c,fnames$indicator)
-  form.rhs <- as.Formula(paste0('~ ',paste0(unique(form.rhs),collapse = ' + ')))
-  mm <- model.matrix(form.rhs,mf)[,-1] ## No intercept
+  fnames <- .get_names_formulaList(forms, formula = TRUE)
+  form.rhs <- do.call(c, fnames$indicator)
+  form.rhs <- as.Formula(paste0("~ ", paste0(unique(form.rhs), collapse = " + ")))
+  mm <- model.matrix(form.rhs, mf)[, -1] ## No intercept
 
   # Loading indicator matrix
-  F_inds <- .get_loadings_matrix(forms,mm)
+  F_inds <- .get_loadings_matrix(forms, mm)
 
   # Misc Stan data
   N <- nrow(mm)
   J <- ncol(mm)
   `F` <- nrow(F_inds)
 
-  out <- list(stan_data = list(N=N,J=J,`F`=`F`,F_inds=F_inds,x=mm,exo_x=mm.exo,P=P), model.frame = mf)
+  out <- list(stan_data = list(N = N, J = J, `F` = `F`, F_inds = F_inds, x = mm, exo_x = mm.exo, P = P), model.frame = mf)
 }
 
 #' Takes formula and returns names
@@ -170,18 +185,18 @@ omegad <- function(formula,data,...){
 #'
 #' @return List containing factor names (factor) and indicator names (indicator).
 #' @keywords internal
-.get_names_formulaList <- function(formList,formula=FALSE){
-  fNames <- lapply(formList,function(f){
+.get_names_formulaList <- function(formList, formula=FALSE) {
+  fNames <- lapply(formList, function(f) {
     all.vars(f)[1]
   })
-  iNames <- lapply(formList,function(f){
-    if(formula){
-      attr(terms(f),'term.labels')
+  iNames <- lapply(formList, function(f) {
+    if (formula) {
+      attr(terms(f), "term.labels")
     } else {
       all.vars(f)[-1]
     }
   })
-  list(factor=fNames,indicator=iNames)
+  list(factor = fNames, indicator = iNames)
 }
 
 #' Create FxJ loadings matrix, padded with zeroes
@@ -195,26 +210,26 @@ omegad <- function(formula,data,...){
 #' @return FxJ matrix with the indicator indices for each factor. Padded with zeroes.
 #' @keywords internal
 #'
-.get_loadings_matrix <- function(formList,mm){
-  fnames <- .get_names_formulaList(formList,formula=TRUE)
+.get_loadings_matrix <- function(formList, mm) {
+  fnames <- .get_names_formulaList(formList, formula = TRUE)
   inames <- colnames(mm)
   `F` <- length(formList)
   J <- ncol(mm)
 
-  lmat <- matrix(0,nrow=`F`,ncol=J)
-  for(f in 1:`F`){
+  lmat <- matrix(0, nrow = `F`, ncol = J)
+  for (f in 1:`F`) {
     f.num <- length(fnames$indicator[[f]])
-    lmat[f,1:f.num] <- match(fnames$indicator[[f]],inames)
+    lmat[f, 1:f.num] <- match(fnames$indicator[[f]], inames)
   }
-  row.names(lmat) <- do.call(c,fnames$factor)
+  row.names(lmat) <- do.call(c, fnames$factor)
   lmat
 
 }
 
-.get_diagnostics <- function(object){
-  rhats <- rstan::summary(object$fit,pars=c('lambda_loc_mat','lambda_sca_mat','nu_loc','nu_sca','theta_cor'))$summary[,'Rhat']
+.get_diagnostics <- function(object) {
+  rhats <- rstan::summary(object$fit, pars = c("lambda_loc_mat", "lambda_sca_mat", "nu_loc", "nu_sca", "theta_cor"))$summary[, "Rhat"]
 
-  n_effs <- rstan::summary(object$fit,pars=c('lambda_loc_mat','lambda_sca_mat','nu_loc','nu_sca','theta_cor'))$summary[,'n_eff']
+  n_effs <- rstan::summary(object$fit, pars = c("lambda_loc_mat", "lambda_sca_mat", "nu_loc", "nu_sca", "theta_cor"))$summary[, "n_eff"]
 
   div <- rstan::get_num_divergent(object$fit)
 
@@ -222,5 +237,5 @@ omegad <- function(formula,data,...){
 
   bfmi <- rstan::get_bfmi(objects$fit)
 
-  return(mget(c('rhats','n_effs','div','tree.max','bfmi')))
+  return(mget(c("rhats", "n_effs", "div", "tree.max", "bfmi")))
 }
