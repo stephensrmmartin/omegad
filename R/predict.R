@@ -19,8 +19,30 @@ predict.omegad <- function(object, newdata, summary, prob = .95, samples, ...) {
 ##############
 ## GP STUFF ##
 ##############
-.predict_gp <- function(x.new, x.old, gp_linear_beta, gp_alpha, gp_rho) {
-    
+# yhat = xhat %*% (spds * gp_z(xs))
+# You need to save the gp_z values, and estimate across the posterior of them.
+# f(x) ~ MVN(0, K(x,x)) ## Standard GP
+# f(x) = L(K)*gp_z, gp_z ~ N(0,1) ## Standard GP
+# f(x) = phi*(D[spds]*gp_z), gp_z ~ N(0,1) ## GPA
+
+##' .. content for \description{} (no empty lines) ..
+##'
+##' .. content for \details{} ..
+##' @title 
+##' @param x Numeric vector.
+##' @param gp_linear_beta Linear beta value.
+##' @param gp_alpha GP alpha value.
+##' @param gp_rho GP rho value.
+##' @param gp_z Numeric vector. Basis function gp_z values.
+##' @param M Number of basis functions
+##' @return 
+##' @author Stephen R. Martin
+.predict_gp <- function(x, gp_linear_beta, gp_alpha, gp_rho, gp_z, M) {
+    L <- 3*5/2
+    lambdas <- .lambdas(L, M)
+    x_phi <- .basis_phis(L, M, x)
+    preds <- .spd_gp_fast(x_phi, gp_alpha, gp_rho, lambdas, gp_z)
+    preds
 }
 
 .lambdas <- function(L, M) {
@@ -33,7 +55,7 @@ predict.omegad <- function(object, newdata, summary, prob = .95, samples, ...) {
 
 .basis_phis <- function(L, M, x) {
     phis <- matrix(0, nrow = length(x), ncol = M)
-    for(m in 1:M) {
+    for (m in 1:M) {
         phis[, m] <- .basis_phi(L, m, x)
     }
     phis
