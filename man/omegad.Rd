@@ -34,6 +34,10 @@ For example, if one has 5 items for agreeableness and openness:
 If \code{\link{lavaan}} is familiar to you, then a lavaan formula such as:
 \code{agree =~ A1 + A2} is identical to an \code{omegad} formula of \code{agree ~ A1 + A2}.
 
+In addition, the ``Error'' factor(s) can be predicted using \code{Error ~ x1 + x2 + ...}.
+Currently, the provided covariates predict all Error factor scores.
+Moreover, exogenous variables must be observed (as of now).
+
 Note that omegad imposes a positivity constraint on all loadings.
 This means that *all* reverse-scored items should be reflected so that all items are in the same direction.
 }

@@ -1,0 +1,54 @@
+##' Predicts omega reliability from provided data.
+##'
+##' Empty for now.
+##' @title Predict method for omegad object.
+##' @param object omegad object.
+##' @param newdata Data.frame. Must contain the exogenous (if used) and latent factor names.
+##' @param summary Logical (Default: TRUE). Whether to return summary or array of samples.
+##' @param prob Numeric (Default: .95). 
+##' @param samples Numeric (Default: All). Number of posterior samples to use.
+##' @param ... Unused.
+##' @return Data.frame (summary=TRUE) or array (summary=FALSE).
+##' @author Stephen R. Martin
+##' @export
+predict.omegad <- function(object, newdata, summary, prob = .95, samples, ...) {
+    
+}
+
+
+##############
+## GP STUFF ##
+##############
+.predict_gp <- function(x.new, x.old, gp_linear_beta, gp_alpha, gp_rho) {
+    
+}
+
+.lambdas <- function(L, M) {
+    ((pi * 1:M) / (2 * L))^2
+}
+
+.basis_phi <- function(L, m, x) {
+    (1 / sqrt(L)) * sin((pi * m) / (2 * L) * (x + L))
+}
+
+.basis_phis <- function(L, M, x) {
+    phis <- matrix(0, nrow = length(x), ncol = M)
+    for(m in 1:M) {
+        phis[, m] <- .basis_phi(L, m, x)
+    }
+    phis
+}
+
+.spd <- function(alpha, rho, lambda) {
+    (alpha^2) * sqrt(2 * pi) * rho * exp(-.5 * (rho^2) * lambda^2)
+}
+
+.spds <- function(alpha, rho, lambdas) {
+    .spd(alpha, rho, lambdas)
+}
+
+.spd_gp_fast <- function(x_phi, alpha, rho, lambdas, gp_z) {
+    spds <- .spds(alpha, rho, lambdas)
+    x_phi %*% (spds * gp_z)
+}
+
