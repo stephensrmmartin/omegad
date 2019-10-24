@@ -84,7 +84,9 @@ omegad <- function(formula, data, ...) {
               "gp_linear",
               "exo_gp_alpha",
               "exo_gp_rho",
-              "exo_gp_linear")
+              "exo_gp_linear",
+              "gp_z",
+              "exo_gp_z")
   } else {
     pars <- c(pars, "exo_beta")
     model <- stanmodels$relFactorGeneral

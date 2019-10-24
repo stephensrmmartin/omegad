@@ -4,7 +4,8 @@
 \alias{predict.omegad}
 \title{Predict method for omegad object.}
 \usage{
-\method{predict}{omegad}(object, newdata, summary, prob = 0.95, ...)
+\method{predict}{omegad}(object, newdata, summary, prob = 0.95, samples,
+  ...)
 }
 \arguments{
 \item{object}{omegad object.}
@@ -14,6 +15,8 @@
 \item{summary}{Logical (Default: TRUE). Whether to return summary or array of samples.}
 
 \item{prob}{Numeric (Default: .95).}
+
+\item{samples}{Numeric (Default: All). Number of posterior samples to use.}
 
 \item{...}{Unused.}
 }

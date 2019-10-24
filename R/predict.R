@@ -25,18 +25,6 @@ predict.omegad <- function(object, newdata, summary, prob = .95, samples, ...) {
 # f(x) = L(K)*gp_z, gp_z ~ N(0,1) ## Standard GP
 # f(x) = phi*(D[spds]*gp_z), gp_z ~ N(0,1) ## GPA
 
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
-##' @title 
-##' @param x Numeric vector.
-##' @param gp_linear_beta Linear beta value.
-##' @param gp_alpha GP alpha value.
-##' @param gp_rho GP rho value.
-##' @param gp_z Numeric vector. Basis function gp_z values.
-##' @param M Number of basis functions
-##' @return 
-##' @author Stephen R. Martin
 .predict_gp <- function(x, gp_linear_beta, gp_alpha, gp_rho, gp_z, M) {
     L <- 3*5/2
     lambdas <- .lambdas(L, M)
