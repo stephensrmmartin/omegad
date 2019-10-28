@@ -102,7 +102,8 @@ omegad <- function(formula, data, ...) {
                J = d$stan_data$J,
                F = d$stan_data$F,
                fnames = d$fnames,
-               enames = d$enames
+               enames = d$enames,
+               modelForms = d$modelForms
                )
   out <- list(formula = formula,
               data = d$model.frame,
@@ -193,12 +194,14 @@ omegad <- function(formula, data, ...) {
 
   # Misc
   enames <- list(terms = attr(terms(exoForm.rhs), "term.labels"), vars = all.vars(exoForm.rhs))
+  modelForms <- list(latent = forms, exo = exoForm.rhs)
 
   out <- list(stan_data = list(N = N, J = J, `F` = `F`, F_inds = F_inds, x = mm, exo_x = mm.exo, P = P),
               model.frame = mf,
               exo = exo,
               enames = enames,
-              fnames = fnames)
+              fnames = fnames,
+              modelForms = modelForms)
 }
 
 #' Takes formula and returns names
