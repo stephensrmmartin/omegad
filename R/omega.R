@@ -237,9 +237,9 @@ omegad <- function(formula, data, ...) {
   J <- ncol(mm)
 
   lmat <- matrix(0, nrow = `F`, ncol = J)
-  for (f in 1:`F`) {
+  for (f in seq_len(F)) {
     f.num <- length(fnames$indicator[[f]])
-    lmat[f, 1:f.num] <- match(fnames$indicator[[f]], inames)
+    lmat[f, seq_len(f.num)] <- match(fnames$indicator[[f]], inames)
   }
   row.names(lmat) <- do.call(c, fnames$factor)
   lmat
