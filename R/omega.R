@@ -136,7 +136,7 @@ omegad <- function(formula, data, ...) {
   })
 
   # Check structure
-  for (f in 1:length(forms)) {
+  for (f in seq_len(length(forms))) {
     if (length(forms[[f]])[1] == 0) {
       stop("Factor name should be provided on LHS of formula.")
     }
