@@ -102,7 +102,8 @@ omegad <- function(formula, data, ...) {
                J = d$stan_data$J,
                F = d$stan_data$F,
                fnames = d$fnames,
-               exonames = colnames(d$stan_data$exo_x))
+               enames = d$enames
+               )
   out <- list(formula = formula,
               data = d$model.frame,
               stan_data = d$stan_data,
@@ -190,13 +191,10 @@ omegad <- function(formula, data, ...) {
   J <- ncol(mm)
   `F` <- nrow(F_inds)
 
-  # Misc meta data
-  
-
   out <- list(stan_data = list(N = N, J = J, `F` = `F`, F_inds = F_inds, x = mm, exo_x = mm.exo, P = P),
               model.frame = mf,
               exo = exo,
-              enames = attr(terms(exoForm.rhs), "term.labels"),
+              enames = all.vars(exoForm.rhs),
               fnames = fnames)
 }
 
