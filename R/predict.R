@@ -128,7 +128,7 @@ predict.omegad <- function(object, newdata, summary, prob = .95, nsamples = NULL
 }
 
 .spd <- function(alpha, rho, lambda) {
-    (alpha^2) * sqrt(2 * pi) * rho * exp(-.5 * (rho^2) * lambda^2)
+    (alpha^2) * sqrt(2 * pi) * rho * exp(-.5 * (rho^2) * lambda)
 }
 
 .spds <- function(alpha, rho, lambdas) {

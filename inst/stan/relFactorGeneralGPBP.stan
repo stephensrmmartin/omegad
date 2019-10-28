@@ -27,7 +27,7 @@ functions {
 
   // Returns spectral density.
   real spd(real alpha, real rho, real lambda){
-    real spd = (alpha^2)*sqrt(2*pi())*rho*exp(-.5 * (rho^2) * lambda^2);
+    real spd = (alpha^2)*sqrt(2*pi())*rho*exp(-.5 * (rho^2) * lambda);
     return(spd);
   }
 
