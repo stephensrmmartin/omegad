@@ -7,14 +7,18 @@
 ##' @param summary Logical (Default: TRUE). Whether to return summary or array of samples.
 ##' @param prob Numeric (Default: .95). 
 ##' @param samples Numeric (Default: All). Number of posterior samples to use.
+##' @param error Logical (Default: TRUE). Whether the predicted latent variables are sampled with stochastic error or not.
 ##' @param ... Unused.
 ##' @return Data.frame (summary=TRUE) or array (summary=FALSE).
 ##' @author Stephen R. Martin
 ##' @export
-predict.omegad <- function(object, newdata, summary, prob = .95, samples, ...) {
+predict.omegad <- function(object, newdata, summary, prob = .95, samples, error = TRUE, ...) {
     
 }
 
+.parse_formula.predict <- function(object, newdata) {
+    
+}
 
 ##############
 ## GP STUFF ##
@@ -24,6 +28,21 @@ predict.omegad <- function(object, newdata, summary, prob = .95, samples, ...) {
 # f(x) ~ MVN(0, K(x,x)) ## Standard GP
 # f(x) = L(K)*gp_z, gp_z ~ N(0,1) ## Standard GP
 # f(x) = phi*(D[spds]*gp_z), gp_z ~ N(0,1) ## GPA
+
+.predict_gp_posterior <- function(){
+    F <- ncol(theta_loc)
+    L <- 3*5/2
+    lambdas <- .lambdas(L, M)
+
+    x_phis <- lapply(1:F, function(f) {
+        .basis_phis(L, M, theta_loc[,f])
+    })
+    x_exo_phis <- lapply(1:P, function(p) {
+        .basis_phis(L, M, exo_x[,p])
+    })
+
+    
+}
 
 .predict_gp <- function(x, gp_linear_beta, gp_alpha, gp_rho, gp_z, M) {
     L <- 3*5/2
@@ -61,4 +80,3 @@ predict.omegad <- function(object, newdata, summary, prob = .95, samples, ...) {
     spds <- .spds(alpha, rho, lambdas)
     x_phi %*% (spds * gp_z)
 }
-

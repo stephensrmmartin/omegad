@@ -94,8 +94,20 @@ omegad <- function(formula, data, ...) {
   args <- c(list(object = model, data = d$stan_data, pars = pars), dots)
   stanOut <- do.call("sampling", args = args)
 
-  meta <- list(gp = gp, M = M)
-  out <- list(formula = formula, data = d$model.frame, stan_data = d$stan_data, fit = stanOut, meta = meta)
+  meta <- list(gp = gp,
+               M = M,
+               exo = d$exo,
+               P = d$P,
+               N = d$stan_data$N,
+               J = d$stan_data$J,
+               F = d$stan_data$F,
+               fnames = d$fnames,
+               exonames = colnames(d$stan_data$exo_x))
+  out <- list(formula = formula,
+              data = d$model.frame,
+              stan_data = d$stan_data,
+              fit = stanOut,
+              meta = meta)
   class(out) <- "omegad"
 
   return(out)
@@ -154,11 +166,12 @@ omegad <- function(formula, data, ...) {
   whichExoForm <- which(fnames$factor == "Error")
   if (any(whichExoForm)) {
       exoForm.rhs <- formula(forms[[whichExoForm]], lhs = 0, rhs = 1)
-      print(exoForm.rhs)
       forms[[whichExoForm]] <- NULL
+      exo <- TRUE
       ## forms.rhs[[whichExoForm]] <- NULL
   } else {
       exoForm.rhs <- as.Formula(~ 1)
+      exo <- FALSE
   }
   mm.exo <- model.matrix(exoForm.rhs, mf)
   P <- ncol(mm.exo)
@@ -177,7 +190,14 @@ omegad <- function(formula, data, ...) {
   J <- ncol(mm)
   `F` <- nrow(F_inds)
 
-  out <- list(stan_data = list(N = N, J = J, `F` = `F`, F_inds = F_inds, x = mm, exo_x = mm.exo, P = P), model.frame = mf)
+  # Misc meta data
+  
+
+  out <- list(stan_data = list(N = N, J = J, `F` = `F`, F_inds = F_inds, x = mm, exo_x = mm.exo, P = P),
+              model.frame = mf,
+              exo = exo,
+              enames = attr(terms(exoForm.rhs), "term.labels"),
+              fnames = fnames)
 }
 
 #' Takes formula and returns names
