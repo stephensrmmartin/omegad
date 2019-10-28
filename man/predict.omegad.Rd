@@ -4,8 +4,8 @@
 \alias{predict.omegad}
 \title{Predict method for omegad object.}
 \usage{
-\method{predict}{omegad}(object, newdata, summary, prob = 0.95, samples,
-  ...)
+\method{predict}{omegad}(object, newdata, summary, prob = 0.95,
+  nsamples = NULL, error = TRUE, ...)
 }
 \arguments{
 \item{object}{omegad object.}
@@ -16,9 +16,13 @@
 
 \item{prob}{Numeric (Default: .95).}
 
-\item{samples}{Numeric (Default: All). Number of posterior samples to use.}
+\item{nsamples}{Numeric (Default: All). Number of posterior samples to use.}
+
+\item{error}{Logical (Default: TRUE). Whether the predicted latent variables are sampled with stochastic error or not.}
 
 \item{...}{Unused.}
+
+\item{samples}{Numeric (Default: All). Number of posterior samples to use.}
 }
 \value{
 Data.frame (summary=TRUE) or array (summary=FALSE).
