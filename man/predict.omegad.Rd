@@ -4,7 +4,7 @@
 \alias{predict.omegad}
 \title{Predict method for omegad object.}
 \usage{
-\method{predict}{omegad}(object, newdata, summary, prob = 0.95,
+\method{predict}{omegad}(object, newdata, summary = TRUE, prob = 0.95,
   nsamples = NULL, error = TRUE, ...)
 }
 \arguments{

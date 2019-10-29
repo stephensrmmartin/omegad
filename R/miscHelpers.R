@@ -42,9 +42,26 @@
     return(structured_samps)
 }
 
-
+##' Given some array of any dimension, return a slice off the end, in the desired shape.
+##'
+##' This function largely solves the one thing in R that has made me ragequit.
+##' When given an array of some dimensions ([N, P, S]), this function will extract out the given slice (e.g., [N,P,2]), and return an [N,P] matrix.
+##' This is true whether there is only ONE row or ONE column.
+##' Please, for the love of all that is holy, just return a slice of an array, so we can do some matrix algebra over several matrices, vectors, or row vectors.
+##' @title Extract subarray, while maintaining shape.
+##' @param array Array to slice up.
+##' @param slice Which slice to take.
+##' @return Array of one less dimensionality. If an array of matrices, then a matrix. If an array of vectors, then a vector. If an array of row vectors, then a row vector. And so on.
+##' @author Stephen R. Martin
+##' @keywords internal
 .array_extract <- function(array, slice) {
     dims <- dim(array)
     lastDem <- length(dims)
-    
+    dimExtract <- lapply(dims[1:(lastDem - 1)], function(x){
+        1:x
+    })
+    args <- c(list(array), dimExtract, slice, drop = FALSE)
+    arraySub <- do.call(`[`, args)
+    out <- array(arraySub, dim = dims[1:(lastDem - 1)])
+    return(out)
 }
