@@ -155,9 +155,9 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
             }
         }
         # Compute omegas
-        shat <- exp(matrix(1,ncol=1,nrow=N)%*%t(nu_sca[,s, drop = FALSE]) + t(t(theta_sca[,,s])) %*% t((lambda_sca_mat[,,s])))
-        omega1[,,s] <- omega_one(t(t(lambda_loc_mat[,,s])), F_inds, F_inds_num, shat)
-        omega2[,,s] <- omega_two(t(t(lambda_loc_mat[,,s])), F_inds, F_inds_num, theta_cor_L[,,s], shat)
+        shat <- exp(matrix(1,ncol=1,nrow=N)%*%t(.array_extract(nu_sca,s)) + .array_extract(theta_sca, s) %*% .array_extract(lambda_sca_mat, s))
+        ## omega1[,,s] <- omega_one(.array_extract(lambda_loc_mat, s), F_inds, F_inds_num, shat)
+        ## omega2[,,s] <- omega_two(.array_extract(lambda_loc_mat, s), F_inds, F_inds_num, .array_extract(theta_cor_L, s), shat)
     }
     out <- list(theta_sca = theta_sca, omega1 = omega1, omega2 = omega2)
     return(out)
@@ -197,5 +197,9 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
 .omega_one <- function(lambda_loc_mat, F_inds, F_inds_num, shat) {
     N <- nrow(shat)
     F <- nrow(lambda_loc_mat)
+    
+}
+
+.omega_two <- function(lambda_loc_mat, F_inds, F_inds_num, theta_cor, shat) {
     
 }
