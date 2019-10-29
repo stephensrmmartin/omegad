@@ -65,3 +65,7 @@
     out <- array(arraySub, dim = dims[1:(lastDem - 1)])
     return(out)
 }
+
+.prob_to_probs <- function(prob) {
+    c((1 - prob)/2, 1 - (1 - prob)/2)
+}
