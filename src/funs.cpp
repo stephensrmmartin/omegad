@@ -4,7 +4,7 @@
 
 #include <stan/model/standalone_functions_header.hpp>
 
-namespace user_f0820e0d7a9b64beafd46985e1dbe478 { 
+namespace user_ef86559aa405631b00029e0fe1ad7bc8 { 
 using std::istream;
 using std::string;
 using std::stringstream;
@@ -201,7 +201,7 @@ spd(const T0__& alpha,
         (void) spd;  // dummy to suppress unused var warning
         stan::math::initialize(spd, DUMMY_VAR__);
         stan::math::fill(spd, DUMMY_VAR__);
-        stan::math::assign(spd,(((pow(alpha, 2) * stan::math::sqrt((2 * stan::math::pi()))) * rho) * stan::math::exp(((-(.5) * pow(rho, 2)) * pow(lambda, 2)))));
+        stan::math::assign(spd,(((pow(alpha, 2) * stan::math::sqrt((2 * stan::math::pi()))) * rho) * stan::math::exp(((-(.5) * pow(rho, 2)) * lambda))));
 
 
         current_statement_begin__ = 31;
@@ -734,7 +734,7 @@ Eigen::Matrix<double, Eigen::Dynamic, 1>
 lambdas(const double& L,
             const int& M){
   return 
-user_f0820e0d7a9b64beafd46985e1dbe478::lambdas<double>(L, M, &Rcpp::Rcout);
+user_ef86559aa405631b00029e0fe1ad7bc8::lambdas<double>(L, M, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -744,7 +744,7 @@ basis_phi(const double& L,
               const int& m,
               const Eigen::Matrix<double, Eigen::Dynamic, 1>& x){
   return 
-user_f0820e0d7a9b64beafd46985e1dbe478::basis_phi<double, double>(L, m, x, &Rcpp::Rcout);
+user_ef86559aa405631b00029e0fe1ad7bc8::basis_phi<double, double>(L, m, x, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -754,7 +754,7 @@ basis_phis(const double& L,
                const int& M,
                const Eigen::Matrix<double, Eigen::Dynamic, 1>& x){
   return 
-user_f0820e0d7a9b64beafd46985e1dbe478::basis_phis<double, double>(L, M, x, &Rcpp::Rcout);
+user_ef86559aa405631b00029e0fe1ad7bc8::basis_phis<double, double>(L, M, x, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -764,7 +764,7 @@ spd(const double& alpha,
         const double& rho,
         const double& lambda){
   return 
-user_f0820e0d7a9b64beafd46985e1dbe478::spd<double, double, double>(alpha, rho, lambda, &Rcpp::Rcout);
+user_ef86559aa405631b00029e0fe1ad7bc8::spd<double, double, double>(alpha, rho, lambda, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -774,7 +774,7 @@ spds(const double& alpha,
          const double& rho,
          const Eigen::Matrix<double, Eigen::Dynamic, 1>& lambdas){
   return 
-user_f0820e0d7a9b64beafd46985e1dbe478::spds<double, double, double>(alpha, rho, lambdas, &Rcpp::Rcout);
+user_ef86559aa405631b00029e0fe1ad7bc8::spds<double, double, double>(alpha, rho, lambdas, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -785,7 +785,7 @@ spd_gp(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& x_phi,
            const double& rho,
            const Eigen::Matrix<double, Eigen::Dynamic, 1>& lambdas){
   return 
-user_f0820e0d7a9b64beafd46985e1dbe478::spd_gp<double, double, double, double>(x_phi, alpha, rho, lambdas, &Rcpp::Rcout);
+user_ef86559aa405631b00029e0fe1ad7bc8::spd_gp<double, double, double, double>(x_phi, alpha, rho, lambdas, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -797,7 +797,7 @@ spd_gp_fast(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& x_phi,
                 const Eigen::Matrix<double, Eigen::Dynamic, 1>& lambdas,
                 const Eigen::Matrix<double, Eigen::Dynamic, 1>& gp_z){
   return 
-user_f0820e0d7a9b64beafd46985e1dbe478::spd_gp_fast<double, double, double, double, double>(x_phi, alpha, rho, lambdas, gp_z, &Rcpp::Rcout);
+user_ef86559aa405631b00029e0fe1ad7bc8::spd_gp_fast<double, double, double, double, double>(x_phi, alpha, rho, lambdas, gp_z, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -808,7 +808,7 @@ omega_one(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& lambda_lo
               const std::vector<int>& F_inds_num,
               const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& shat){
   return 
-user_f0820e0d7a9b64beafd46985e1dbe478::omega_one<double, double>(lambda_loc_mat, F_inds, F_inds_num, shat, &Rcpp::Rcout);
+user_ef86559aa405631b00029e0fe1ad7bc8::omega_one<double, double>(lambda_loc_mat, F_inds, F_inds_num, shat, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -817,7 +817,7 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>
 loadings_to_ones(const std::vector<std::vector<int> >& F_inds,
                      const std::vector<int>& F_inds_num){
   return 
-user_f0820e0d7a9b64beafd46985e1dbe478::loadings_to_ones(F_inds, F_inds_num, &Rcpp::Rcout);
+user_ef86559aa405631b00029e0fe1ad7bc8::loadings_to_ones(F_inds, F_inds_num, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -825,7 +825,7 @@ user_f0820e0d7a9b64beafd46985e1dbe478::loadings_to_ones(F_inds, F_inds_num, &Rcp
 Eigen::Matrix<double, Eigen::Dynamic, 1>
 ones(const int& num){
   return 
-user_f0820e0d7a9b64beafd46985e1dbe478::ones(num, &Rcpp::Rcout);
+user_ef86559aa405631b00029e0fe1ad7bc8::ones(num, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -837,7 +837,7 @@ omega_two(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& lambda_lo
               const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& theta_cor_L,
               const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& shat){
   return 
-user_f0820e0d7a9b64beafd46985e1dbe478::omega_two<double, double, double>(lambda_loc_mat, F_inds, F_inds_num, theta_cor_L, shat, &Rcpp::Rcout);
+user_ef86559aa405631b00029e0fe1ad7bc8::omega_two<double, double, double>(lambda_loc_mat, F_inds, F_inds_num, theta_cor_L, shat, &Rcpp::Rcout);
 }
 
 
