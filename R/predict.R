@@ -13,15 +13,30 @@
 ##' @return Data.frame (summary=TRUE) or array (summary=FALSE).
 ##' @author Stephen R. Martin
 ##' @export
-predict.omegad <- function(object, newdata, summary, prob = .95, nsamples = NULL, error = TRUE, ...) {
+predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples = NULL, error = TRUE, ...) {
     if (is.null(nsamples)) {
-        nsamples <- nsamples(omegad)
+        nsamples <- nsamples(object)
     }
+    probs <- c((1 - prob) / 2, 1 - (1 - prob) / 2)
 
 
     d <- .parse_formula.predict(object, newdata)
     if (object$meta$gp) {
-        predOut <- .predict_gp_posterior(object, d, samples, error)
+        predOut <- .predict_gp_posterior(object, d, nsamples, error)
+    }
+
+    if (summary) {
+        predOut <- lapply(predOut, function(x) {
+            apply(x, c(1,2), function(y) {
+                m <- mean(y)
+                sd <- sd(y)
+                ci <- quantile(y, probs)
+                L <- ci[1]
+                U <- ci[2]
+                c(mean = m, sd = sd, L = L, U = U)
+            })
+            
+        })
     }
 }
 
@@ -72,6 +87,8 @@ predict.omegad <- function(object, newdata, summary, prob = .95, nsamples = NULL
 # f(x) = L(K)*gp_z, gp_z ~ N(0,1) ## Standard GP
 # f(x) = phi*(D[spds]*gp_z), gp_z ~ N(0,1) ## GPA
 
+#STEPHEN:: You need to implement .array_extract to ensure column and row vectors remain as such, rather than downgraded to just a vector.
+
 .predict_gp_posterior <- function(object, data, nsamples, error){
     theta_loc <- data$theta_loc
     exo_x <- data$exo_x
@@ -80,9 +97,13 @@ predict.omegad <- function(object, newdata, summary, prob = .95, nsamples = NULL
     P <- object$meta$P
     M <- data$M
     exo <- object$meta$exo
+    F_inds <- object$stan_data$F_inds
+    F_inds_num <- sapply(1:F, function(x){
+        sum(F_inds[x,] != 0)
+    })
+
     L <- 3*5/2
     lambdas <- .lambdas(L, M)
-    F_inds <- object$stan_data$F_inds
 
     # Create Basis Functions
     gp_theta_phis <- lapply(seq_len(F), function(f) {
@@ -96,19 +117,50 @@ predict.omegad <- function(object, newdata, summary, prob = .95, nsamples = NULL
 
     # Extract posterior samples of needed params.
     gp_z <- .extract_transform(object$fit, "gp_z", nsamples = nsamples)
+    gp_linear <- .extract_transform(object$fit, "gp_linear", nsamples = nsamples)
     gp_alpha <- .extract_transform(object$fit, "gp_alpha", nsamples = nsamples)
     gp_rho <- .extract_transform(object$fit, "gp_rho", nsamples = nsamples)
     lambda_loc_mat <- .extract_transform(object$fit, "lambda_loc_mat", nsamples = nsamples)
     lambda_sca_mat <- .extract_transform(object$fit, "lambda_sca_mat", nsamples = nsamples)
     nu_sca <- .extract_transform(object$fit, "nu_sca", nsamples = nsamples)
-}
+    theta_cor_L <- .extract_transform(object$fit, "theta_cor", nsamples = nsamples)
+    theta_cor_L <- array(apply(theta_cor_L, 3, function(x){t(chol(x))}), dim=c(F,F,nsamples))
+    if (exo) {
+        exo_gp_z <- .extract_transform(object$fit, "exo_gp_z", nsamples = nsamples)
+        exo_gp_linear <- .extract_transform(object$fit, "exo_gp_linear", nsamples = nsamples)
+        exo_gp_alpha <- .extract_transform(object$fit, "exo_gp_alpha", nsamples = nsamples)
+        exo_gp_rho <- .extract_transform(object$fit, "exo_gp_rho", nsamples = nsamples)
+    }
 
-.predict_gp <- function(x, gp_linear_beta, gp_alpha, gp_rho, gp_z, M) {
-    L <- 3*5/2
-    lambdas <- .lambdas(L, M)
-    x_phi <- .basis_phis(L, M, x)
-    preds <- .spd_gp_fast(x_phi, gp_alpha, gp_rho, lambdas, gp_z)
-    preds
+    theta_sca <- array(0, dim=c(N, F, nsamples))
+    omega1 <- array(0, dim = c(N, F, nsamples))
+    omega2 <- array(0, dim = c(N, F, nsamples))
+    if(error) {
+        theta_sca[,,] <- rnorm(N*F*nsamples, 0, 1)
+    }
+
+    for (s in 1:nsamples) {
+        for(f in 1:F){
+            # GP part
+            theta_sca[,f ,s] <- theta_sca[,f ,s] +
+                .spd_gp_fast(gp_theta_phis[[f]], gp_alpha[f,s], gp_rho[f,s], lambdas, gp_z[,f,s]) +
+                theta_loc[,f] * gp_linear[f, s]
+            # Exogenous part
+            if (exo) {
+                for (p in 1:(P-1)) {
+                    theta_sca[,f , s] <- theta_sca[,f , s] +
+                        .spd_gp_fast(exo_gp_phis[[f]], exo_gp_alpha[p,f,s], gp_rho[p,f,s], lambdas, exo_gp_z[,f, p,s]) +
+                        exo_x[,(p + 1)]*exo_gp_linear[p,f,s]
+                }
+            }
+        }
+        # Compute omegas
+        shat <- exp(matrix(1,ncol=1,nrow=N)%*%t(nu_sca[,s, drop = FALSE]) + t(t(theta_sca[,,s])) %*% t((lambda_sca_mat[,,s])))
+        omega1[,,s] <- omega_one(t(t(lambda_loc_mat[,,s])), F_inds, F_inds_num, shat)
+        omega2[,,s] <- omega_two(t(t(lambda_loc_mat[,,s])), F_inds, F_inds_num, theta_cor_L[,,s], shat)
+    }
+    out <- list(theta_sca = theta_sca, omega1 = omega1, omega2 = omega2)
+    return(out)
 }
 
 .lambdas <- function(L, M) {
@@ -138,4 +190,12 @@ predict.omegad <- function(object, newdata, summary, prob = .95, nsamples = NULL
 .spd_gp_fast <- function(x_phi, alpha, rho, lambdas, gp_z) {
     spds <- .spds(alpha, rho, lambdas)
     x_phi %*% (spds * gp_z)
+}
+
+# Omega Functions #
+
+.omega_one <- function(lambda_loc_mat, F_inds, F_inds_num, shat) {
+    N <- nrow(shat)
+    F <- nrow(lambda_loc_mat)
+    
 }

@@ -41,3 +41,10 @@
     }
     return(structured_samps)
 }
+
+
+.array_extract <- function(array, slice) {
+    dims <- dim(array)
+    lastDem <- length(dims)
+    
+}
