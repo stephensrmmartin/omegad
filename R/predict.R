@@ -17,7 +17,7 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
     if (is.null(nsamples)) {
         nsamples <- nsamples(object)
     }
-    probs <- c((1 - prob) / 2, 1 - (1 - prob) / 2)
+    probs <- .prob_to_probs(prob)
 
 
     d <- .parse_formula.predict(object, newdata)
@@ -27,7 +27,7 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
 
     if (summary) {
         predOut <- lapply(predOut, function(x) {
-            apply(x, c(1,2), function(y) {
+            out <- apply(x, c(1,2), function(y) {
                 m <- mean(y)
                 sd <- sd(y)
                 ci <- quantile(y, probs)
@@ -35,9 +35,20 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
                 U <- ci[2]
                 c(mean = m, sd = sd, L = L, U = U)
             })
-            
+            out <- aperm(out, c(2, 1, 3))
+            colnames(out) <- c("Mean","SD",paste0("Q", probs[1]*100), paste0("Q", probs[2]*100))
+            dimnames(out)[3] <- unlist(object$meta$fnames$factor)
+            return(out)
+        })
+        ## predOut <- lapply(predOut, function(x){aperm(x, c(2,1,3))})
+    } else {
+        predOut <- lapply(predOut, function(x) {
+            colnames(x) <- unlist(object$meta$fnames$factor)
+            return(x)
         })
     }
+
+    return(predOut)
 }
 
 ##' Converts object and newdata into appropriate design matrices.
@@ -97,10 +108,12 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
     P <- object$meta$P
     M <- data$M
     exo <- object$meta$exo
-    F_inds <- object$stan_data$F_inds
-    F_inds_num <- sapply(1:F, function(x){
-        sum(F_inds[x,] != 0)
-    })
+    ## F_inds <- object$stan_data$F_inds
+    ## F_inds_num <- sapply(1:F, function(x){
+    ##     sum(F_inds[x,] != 0)
+    ## })
+    F_inds <- lapply(1:F, function(x){object$stan_data$F_inds[x,]})
+    F_inds_num <- sapply(F_inds, function(x){sum(x != 0)})
 
     L <- 3*5/2
     lambdas <- .lambdas(L, M)
@@ -156,8 +169,8 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
         }
         # Compute omegas
         shat <- exp(matrix(1,ncol=1,nrow=N)%*%t(.array_extract(nu_sca,s)) + .array_extract(theta_sca, s) %*% .array_extract(lambda_sca_mat, s))
-        ## omega1[,,s] <- omega_one(.array_extract(lambda_loc_mat, s), F_inds, F_inds_num, shat)
-        ## omega2[,,s] <- omega_two(.array_extract(lambda_loc_mat, s), F_inds, F_inds_num, .array_extract(theta_cor_L, s), shat)
+        omega1[,,s] <- omega_one(.array_extract(lambda_loc_mat, s), F_inds, F_inds_num, shat)
+        omega2[,,s] <- omega_two(.array_extract(lambda_loc_mat, s), F_inds, F_inds_num, .array_extract(theta_cor_L, s), shat)
     }
     out <- list(theta_sca = theta_sca, omega1 = omega1, omega2 = omega2)
     return(out)
