@@ -42,7 +42,7 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
             })
             out <- aperm(out, c(2, 1, 3))
             colnames(out) <- c("Mean","SD",paste0("Q", probs[1]*100), paste0("Q", probs[2]*100))
-            dimnames(out)[3] <- unlist(object$meta$fnames$factor)
+            dimnames(out)[[3]] <- unlist(object$meta$fnames$factor)
             return(out)
         })
         ## predOut <- lapply(predOut, function(x){aperm(x, c(2,1,3))})
