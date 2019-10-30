@@ -1,3 +1,5 @@
+## TODO: May want a custom sample extractor allowing for specific chains.
+
 ##' Extracts samples from stan fit, converts to R-friendly vectors, matrices, arrays, for each sample.
 ##'
 ##' @title Extract and transform samples to R vectors, matrices, arrays.
@@ -68,4 +70,10 @@
 
 .prob_to_probs <- function(prob) {
     c((1 - prob)/2, 1 - (1 - prob)/2)
+}
+
+.summarize_chains <- function(object, chains, par) {
+    samps <- extract(object$fit, par, permuted = FALSE)
+    samps <- samps[,chains,, drop = FALSE]
+    monitor(samps, warmup = 0, digits_summary = 4)
 }
