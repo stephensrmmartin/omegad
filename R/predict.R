@@ -5,7 +5,7 @@
 ##' @param object omegad object.
 ##' @param newdata Data.frame. Must contain the exogenous (if used) and latent factor names.
 ##' @param summary Logical (Default: TRUE). Whether to return summary or array of samples.
-##' @param prob Numeric (Default: .95). 
+##' @param prob Numeric (Default: .95). The amount of probability mass to include within the credible. Default values provide a 95\% credible interval.
 ##' @param nsamples Numeric (Default: All). Number of posterior samples to use.
 ##' @param error Logical (Default: TRUE). Whether the predicted latent variables are sampled with stochastic error or not.
 ##' @param ... Unused.
