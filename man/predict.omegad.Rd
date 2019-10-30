@@ -25,7 +25,10 @@
 \item{samples}{Numeric (Default: All). Number of posterior samples to use.}
 }
 \value{
-Data.frame (summary=TRUE) or array (summary=FALSE).
+List of arrays. The list contains arrays of posterior summaries (\code{summary = TRUE}) or samples (\code{summary = FALSE}) for the predicted error factor, omega1, and omega2.
+If \code{summary = TRUE}, then the arrays are of size [N, 4, F], where N is the number of predicted observations, the four columns correspond to the summary statistics (mean, sd, and intervals), and F is the number of factors.
+The factor dimension is named, allowing for \code{out$omega1[,,"agreeableness"]}.
+If \code{summary = FALSE}, then the arrays are of size [N, F, S], where S is the number of samples (\code{nsamples}).
 }
 \description{
 Predicts omega reliability from provided data.

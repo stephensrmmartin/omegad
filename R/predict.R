@@ -10,7 +10,10 @@
 ##' @param error Logical (Default: TRUE). Whether the predicted latent variables are sampled with stochastic error or not.
 ##' @param ... Unused.
 ##' @param samples Numeric (Default: All). Number of posterior samples to use.
-##' @return Data.frame (summary=TRUE) or array (summary=FALSE).
+##' @return List of arrays. The list contains arrays of posterior summaries (\code{summary = TRUE}) or samples (\code{summary = FALSE}) for the predicted error factor, omega1, and omega2.
+##' If \code{summary = TRUE}, then the arrays are of size [N, 4, F], where N is the number of predicted observations, the four columns correspond to the summary statistics (mean, sd, and intervals), and F is the number of factors.
+##' The factor dimension is named, allowing for \code{out$omega1[,,"agreeableness"]}.
+##' If \code{summary = FALSE}, then the arrays are of size [N, F, S], where S is the number of samples (\code{nsamples}).
 ##' @author Stephen R. Martin
 ##' @export
 predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples = NULL, error = TRUE, ...) {

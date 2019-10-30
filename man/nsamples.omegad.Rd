@@ -4,7 +4,7 @@
 \alias{nsamples.omegad}
 \title{Extract number of posterior samples.}
 \usage{
-nsamples.omegad(object)
+\method{nsamples}{omegad}(object)
 }
 \arguments{
 \item{object}{omegad object.}
