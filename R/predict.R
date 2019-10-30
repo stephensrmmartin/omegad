@@ -26,6 +26,8 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
     d <- .parse_formula.predict(object, newdata)
     if (object$meta$gp) {
         predOut <- .predict_gp_posterior(object, d, nsamples, error)
+    } else {
+        predOut <- .predict_cov_posterior(object, d, nsamples, error)
     }
 
     if (summary) {
@@ -92,6 +94,10 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
     return(out)
 }
 
+.predict_cov_posterior <- function(object, data, nsamples, error){
+    
+}
+
 ##############
 ## GP STUFF ##
 ##############
@@ -100,8 +106,6 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
 # f(x) ~ MVN(0, K(x,x)) ## Standard GP
 # f(x) = L(K)*gp_z, gp_z ~ N(0,1) ## Standard GP
 # f(x) = phi*(D[spds]*gp_z), gp_z ~ N(0,1) ## GPA
-
-#STEPHEN:: You need to implement .array_extract to ensure column and row vectors remain as such, rather than downgraded to just a vector.
 
 .predict_gp_posterior <- function(object, data, nsamples, error){
     theta_loc <- data$theta_loc
@@ -206,16 +210,4 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
 .spd_gp_fast <- function(x_phi, alpha, rho, lambdas, gp_z) {
     spds <- .spds(alpha, rho, lambdas)
     x_phi %*% (spds * gp_z)
-}
-
-# Omega Functions #
-
-.omega_one <- function(lambda_loc_mat, F_inds, F_inds_num, shat) {
-    N <- nrow(shat)
-    F <- nrow(lambda_loc_mat)
-    
-}
-
-.omega_two <- function(lambda_loc_mat, F_inds, F_inds_num, theta_cor, shat) {
-    
 }
