@@ -94,6 +94,10 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
     return(out)
 }
 
+.cond_mvn <- function(x1, x2, mu1, mu2, sigma1, sigma2) {
+    
+}
+
 .predict_cov_posterior <- function(object, data, nsamples, error){
     
 }
