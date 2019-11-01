@@ -15,6 +15,7 @@
 ##' The factor dimension is named, allowing for \code{out$omega1[,,"agreeableness"]}.
 ##' If \code{summary = FALSE}, then the arrays are of size [N, F, S], where S is the number of samples (\code{nsamples}).
 ##' @author Stephen R. Martin
+##' @importFrom mvtnorm rmvnorm
 ##' @export
 predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples = NULL, error = TRUE, ...) {
     if (is.null(nsamples)) {
