@@ -141,6 +141,11 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
     lambda_sca_mat <- .extract_transform(object$fit, "lambda_sca_mat", nsamples = nsamples)
     nu_sca <- .extract_transform(object$fit, "nu_sca", nsamples = nsamples)
     theta_cor <- .extract_transform(object$fit, "theta_cor", nsamples = nsamples)
+    ## theta_cor_L <- array(apply(theta_cor, 3, function(s){t(chol(s))}), dim = c(F*2, F*2, nsamples))
+    theta_cor_L <- array(apply(theta_cor, 3, function(s){
+        x <- s[1:F, 1:F] # Locs only
+        t(chol(x))
+    }), dim = c(F, F, nsamples))
     if (exo) {
         exo_beta <- .extract_transform(object$fit, "exo_beta", nsamples = nsamples)
     }
