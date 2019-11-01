@@ -93,13 +93,79 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
                 exo_x = mm.exo)
     return(out)
 }
+##' Computes conditional MVN.
+##'
+##' All (Nx(Q-p)) values are conditioned on the (Nxp) values in x.
+##' That is, if sigma is 10x10, and mu is 10, and x is Nx4, then the last Nx6 are conditioned on x.
+##' @title Compute conditional MVN.
+##' @param x Column vectors (Matrix) of conditional values (conditional variables).
+##' @param mu Vector of means (all variables).
+##' @param sigma Covariance matrix (all variables).
+##' @return 
+##' @author Stephen Martin
+.cond_mvn <- function(x, mu, sigma) {
+    K <- ncol(sigma)
+    N <- nrow(x)
+    if(K != length(mu)) {
+        stop("Mu must be same length as Sigma")
+    }
+    p <- ncol(x)
+    q <- K - p
 
-.cond_mvn <- function(x1, x2, mu1, mu2, sigma1, sigma2) {
-    
+    mu1 <- mu[seq_len(p)]
+    mu2 <- mu[(p + 1):K]
+
+    sigma11 <- sigma[seq_len(p), seq_len(p)]
+    sigma22 <- sigma[(p + 1):K, (p + 1):K]
+    sigma12 <- sigma[seq_len(p), (p+1):K]
+    sigma21 <- t(sigma12)
+
+    mu2Cond <- t(mu2 + sigma21 %*% solve(sigma11) %*% (t(x) - mu1))
+    sigma2Cond <- sigma22 - sigma21 %*% solve(sigma11) %*% sigma12
+    return(list(mu = mu2Cond, sigma = sigma2Cond))
 }
 
 .predict_cov_posterior <- function(object, data, nsamples, error){
-    
+    theta_loc <- data$theta_loc
+    exo_x <- data$exo_x
+    N <- data$N
+    F <- data$F
+    P <- object$meta$P
+    M <- data$M
+    exo <- object$meta$exo
+
+    F_inds <- lapply(1:F, function(x){object$stan_data$F_inds[x,]})
+    F_inds_num <- sapply(F_inds, function(x){sum(x != 0)})
+
+    lambda_loc_mat <- .extract_transform(object$fit, "lambda_loc_mat", nsamples = nsamples)
+    lambda_sca_mat <- .extract_transform(object$fit, "lambda_sca_mat", nsamples = nsamples)
+    nu_sca <- .extract_transform(object$fit, "nu_sca", nsamples = nsamples)
+    theta_cor <- .extract_transform(object$fit, "theta_cor", nsamples = nsamples)
+    if (exo) {
+        exo_beta <- .extract_transform(object$fit, "exo_beta", nsamples = nsamples)
+    }
+
+    theta_sca <- array(0, dim = c(N, F, nsamples))
+    omega1 <- array(0, dim = c(N, F, nsamples))
+    omega2 <- array(0, dim = c(N, F, nsamples))
+
+    for (s in 1:nsamples) {
+        theta_sca_mvn <- .cond_mvn(theta_loc, rep(0,F*2), .array_extract(theta_cor, s))
+        theta_sca[,,s] <- theta_sca_mvn$mu
+        if (error) {
+            theta_sca[,,s] <- .array_extract(theta_sca, s) + rmvnorm(N, rep(0,F), theta_sca_mvn$sigma)
+        }
+        if (exo) {
+            theta_sca[,,s] <- .array_extract(theta_sca, s) + exo_x[,(2:P)] %*% .array_extract(exo_beta, s)
+        }
+    }
+
+    # Compute omegas
+    shat <- exp(matrix(1,ncol=1,nrow=N)%*%t(.array_extract(nu_sca,s)) + .array_extract(theta_sca, s) %*% .array_extract(lambda_sca_mat, s))
+    omega1[,,s] <- omega_one(.array_extract(lambda_loc_mat, s), F_inds, F_inds_num, shat)
+    omega2[,,s] <- omega_two(.array_extract(lambda_loc_mat, s), F_inds, F_inds_num, .array_extract(theta_cor_L, s), shat)
+    out <- list(theta_sca = theta_sca, omega1 = omega1, omega2 = omega2)
+    return(out)
 }
 
 ##############
