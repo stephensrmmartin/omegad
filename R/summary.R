@@ -3,7 +3,7 @@ print.omegad <- function(x, ...) {
     
 }
 
-summary.omegad <- function(object, ...) {
+summary.omegad <- function(object, prob = .95, ...) {
     
 }
 
