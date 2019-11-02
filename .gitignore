@@ -3,3 +3,7 @@
 .RData
 *.o
 *.so
+*.cc
+*.h
+*.cpp
+R/RcppExports.R
