@@ -13,6 +13,9 @@
 
 \item{sigma}{Covariance matrix (all variables).}
 }
+\value{
+List containing expected values (mu, matrix) and covariance matrix (sigma, matrix).
+}
 \description{
 Computes conditional MVN.
 }
@@ -21,5 +24,5 @@ All (Nx(Q-p)) values are conditioned on the (Nxp) values in x.
 That is, if sigma is 10x10, and mu is 10, and x is Nx4, then the last Nx6 are conditioned on x.
 }
 \author{
-Stephen Martin
+Stephen R. Martin
 }

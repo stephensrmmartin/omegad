@@ -102,8 +102,8 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
 ##' @param x Column vectors (Matrix) of conditional values (conditional variables).
 ##' @param mu Vector of means (all variables).
 ##' @param sigma Covariance matrix (all variables).
-##' @return 
-##' @author Stephen Martin
+##' @return List containing expected values (mu, matrix) and covariance matrix (sigma, matrix).
+##' @author Stephen R. Martin
 .cond_mvn <- function(x, mu, sigma) {
     K <- ncol(sigma)
     N <- nrow(x)
