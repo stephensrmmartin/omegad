@@ -63,6 +63,9 @@ omegad <- function(formula, data, ...) {
   if (is.null(dots$chains)) {
     dots$chains <- 4
   }
+  if (is.null(dots$init)) {
+      dots$init = 0
+  }
 
   d <- .parse_formula(formula, data)
   pars <- c("lambda_loc_mat",
