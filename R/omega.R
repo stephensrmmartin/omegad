@@ -108,6 +108,9 @@ omegad <- function(formula, data, ...) {
                enames = d$enames,
                modelForms = d$modelForms
                )
+  if (!is.list(formula)) {
+      formula <- list(formula)
+  }
   out <- list(formula = formula,
               data = d$model.frame,
               stan_data = d$stan_data,
