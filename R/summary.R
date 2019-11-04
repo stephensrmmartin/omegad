@@ -10,21 +10,22 @@
 print.omegad <- function(x, ...) {
     cat("Formula: \n")
     lapply(x$formula, function(x){
-        cat(as.character(x), "\n")
+        cat("\t", deparse(x), "\n")
     })
     cat("Number of Observations: ", x$meta$N, "\n")
     cat("Number of Indicators: ", x$meta$J, "\n")
     cat("Number of Factors: ", x$meta$F, "\n")
     cat("Dependency Model: ", .get_model_description(x), "\n")
-    cat("Chains: ")
-    cat("Cores: ")
-    cat("Time: ")
+    cat("Chains: ", x$fit@sim$chains, "\n")
+    cat("Time: ", max(rowSums(rstan::get_elapsed_time(x$fit))), " seconds \n")
+    cat("Finished:", x$fit@date, "\n")
 
     return(invisible(x))
     
 }
 
 summary.omegad <- function(object, prob = .95, ...) {
+    probs <- .prob_to_probs(prob)
     
 }
 ##' Prints summary.omegad objects.
@@ -43,17 +44,17 @@ print.summary.omegad <- function(x, ...) {
 
 .get_model_description <- function(object) {
     if (object$meta$gp) {
-        out <- c("[Factor -> Error Factor]",
-                 paste0("Univariate gaussian process: Additive linear and exponential quadratic kernels (", object$meta$M, " basis functions) ")
+        out <- c("\n \t [Factor -> Error Factor]",
+                 paste0("\t Univariate gaussian process: Additive linear and exponential quadratic kernels (", object$meta$M, " basis functions) ")
                  )
         if (object$meta$exo) {
-            out <- c(out[1], "[Exogenous -> Error Factor]", out[2])
+            out <- c(out[1], "\t [Exogenous -> Error Factor]", out[2])
         }
         out <- paste0(out, collapse = "\n")
     } else {
-        out <- c("[Factors -> Error Factors]", "Covariance only")
+        out <- c("\n \t [Factors -> Error Factors]", "\t Covariance only")
         if (object$meta$exo) {
-            out <- c(out, "[Exogenous -> Factor]", "Linear model")
+            out <- c(out, "\t [Exogenous -> Factor]", "\t Linear model")
         }
         out <- paste0(out, collapse = "\n")
     }
