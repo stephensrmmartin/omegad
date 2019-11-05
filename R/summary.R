@@ -46,6 +46,7 @@ print.omegad <- function(x, ...) {
 ##' \item{exo_gp_rho}{[P, 4, F]. Exogenous GP model parameter. See gp_rho.}
 ##' }
 ##' @author Stephen R. Martin
+##' @export
 summary.omegad <- function(object, prob = .95, ...) {
     probs <- .prob_to_probs(prob)
     F <- object$meta$F
