@@ -14,7 +14,7 @@
 \item{...}{Not used.}
 }
 \value{
-List containing summaries (Mean, SD, intervals). Dimensions provided in brackets. J = number of items, N = number of observations, F = number of factors, P = number of exogenous predictors. Items and factors are named according to the model formula:
+List containing "summary", "meta" (meta-data), and "diagnostics" (BFMI, Rhats, n_eff, max treedepth, divergences). "summary" is a list containing summaries (Mean, SD, intervals). Dimensions provided in brackets. J = number of items, N = number of observations, F = number of factors, P = number of exogenous predictors. Items and factors are named according to the model formula:
 \describe{
 \item{nu_loc}{[J, 4]. Expected values (intercepts) of the indicators. (I.e., when factors are at zero.)}
 \item{nu_sca}{[J, 4]. Expected residual standard deviation of the indicators. (I.e., when Error factors are at zero.)}

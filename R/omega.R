@@ -116,6 +116,7 @@ omegad <- function(formula, data, ...) {
               stan_data = d$stan_data,
               fit = stanOut,
               meta = meta)
+  out$diagnostics <- .get_diagnostics(out)
   class(out) <- "omegad"
 
   return(out)
@@ -258,15 +259,26 @@ omegad <- function(formula, data, ...) {
 }
 
 .get_diagnostics <- function(object) {
-  rhats <- rstan::summary(object$fit, pars = c("lambda_loc_mat", "lambda_sca_mat", "nu_loc", "nu_sca", "theta_cor"))$summary[, "Rhat"]
+    params <- c("lambda_loc_mat", "lambda_sca_mat", "nu_loc", "nu_sca", "theta_cor")
+    if (object$meta$gp) {
+        params <- c(params, "gp_linear", "gp_alpha", "gp_rho")
+        if (object$meta$exo) {
+            params <- c(params, "exo_gp_linear", "exo_gp_alpha", "exo_gp_rho")
+        }
+    } else {
+        if(object$meta$exo) {
+            params <- c(params, "exo_beta")
+        }
+    }
+  rhats <- rstan::summary(object$fit, pars = params)$summary[, "Rhat"]
 
-  n_effs <- rstan::summary(object$fit, pars = c("lambda_loc_mat", "lambda_sca_mat", "nu_loc", "nu_sca", "theta_cor"))$summary[, "n_eff"]
+  n_effs <- rstan::summary(object$fit, pars = params)$summary[, "n_eff"]
 
   div <- rstan::get_num_divergent(object$fit)
 
   tree.max <- rstan::get_num_max_treedepth(object$fit)
 
-  bfmi <- rstan::get_bfmi(objects$fit)
+  bfmi <- rstan::get_bfmi(object$fit)
 
   return(mget(c("rhats", "n_effs", "div", "tree.max", "bfmi")))
 }
