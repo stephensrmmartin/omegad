@@ -100,7 +100,7 @@ omegad <- function(formula, data, ...) {
   meta <- list(gp = gp,
                M = M,
                exo = d$exo,
-               P = d$P,
+               P = d$stan_data$P,
                N = d$stan_data$N,
                J = d$stan_data$J,
                F = d$stan_data$F,
