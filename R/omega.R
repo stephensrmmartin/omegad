@@ -235,7 +235,6 @@ omegad <- function(formula, data, ...) {
 #'
 #' Takes (RHS) formula list and model *matrix*
 #'
-#' @param names Output of .get_names_formulaList
 #' @param formList Formula list (one entry per factor)
 #' @param mm Model matrix
 #'
