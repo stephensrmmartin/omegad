@@ -23,7 +23,29 @@ print.omegad <- function(x, ...) {
     return(invisible(x))
     
 }
-
+##' Summarizes omegad object.
+##'
+##' Summarizes omegad object.
+##' @title Summary method for omegad objects.
+##' @param object omegad object.
+##' @param prob Numeric (Default: .95). The amount of probability mass to include within the credible interval. Default values provide a 95\% credible interval.
+##' @param ... Not used.
+##' @return List containing summaries (Mean, SD, intervals). Dimensions provided in brackets. J = number of items, N = number of observations, F = number of factors, P = number of exogenous predictors. Items and factors are named according to the model formula:
+##' \describe{
+##' \item{nu_loc}{[J, 4]. Expected values (intercepts) of the indicators. (I.e., when factors are at zero.)}
+##' \item{nu_sca}{[J, 4]. Expected residual standard deviation of the indicators. (I.e., when Error factors are at zero.)}
+##' \item{lambda_loc_mat}{[J, 4, F]. The loadings relating the latent factor to the indicators.}
+##' \item{lambda_sca_mat}{[J, 4, F]. The loadings relating the latent Error factor to the residual SD of the indicators.}
+##' \item{theta_cor}{[F*2, 4, F*2] if not using a GP. [F, 4, F] if using a GP. The correlation between all factors and Error factors (when not using a GP), or between factors (when using a GP).}
+##' \item{gp_linear}{[F, 4]. The linear coefficient between factors and their corresponding error factors.}
+##' \item{gp_alpha}{[F, 4]. The GP "alpha" parameter between factors and their corresponding error factors. This describes the marginal SD in the Error factor due to the non-linear GP.}
+##' \item{gp_rho}{[F, 4]. The GP "rho" parameter (i.e., length scale). This controls the "wiggliness" of the function between factors and their corresponding Error factors. The smaller it is, the more influence nearby inputs have on the function output.}
+##' \item{exo_beta}{[P, 4, F]. The linear coefficient between exogenous predictors and the Error factors.}
+##' \item{exo_gp_linear}{[P, 4, F]. Exogenous GP model parameter. See gp_linear.}
+##' \item{exo_gp_alpha}{[P, 4, F]. Exogenous GP model parameter. See gp_alpha.}
+##' \item{exo_gp_rho}{[P, 4, F]. Exogenous GP model parameter. See gp_rho.}
+##' }
+##' @author Stephen R. Martin
 summary.omegad <- function(object, prob = .95, ...) {
     probs <- .prob_to_probs(prob)
     F <- object$meta$F
@@ -98,8 +120,6 @@ summary.omegad <- function(object, prob = .95, ...) {
         }
     } else { # Not GP
        dimnames(theta_cor_sum)[[1]] <- dimnames(theta_cor_sum)[[3]] <- c(fnames, paste0(fnames, "_Error"))
-
-       outNames <- c(outNames, "theta_cor_sum")
 
        if (exo) {
            exo_beta <- .extract_transform(object$fit, "exo_beta")
