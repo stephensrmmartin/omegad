@@ -26,7 +26,94 @@ print.omegad <- function(x, ...) {
 
 summary.omegad <- function(object, prob = .95, ...) {
     probs <- .prob_to_probs(prob)
-    
+    F <- object$meta$F
+    F_inds <- object$stan_data$F_inds
+    F_inds_num <- rowSums(F_inds != 0)
+    fnames <- unlist(object$meta$fnames$factor)
+    inames.all <- colnames(object$stan_data$x)
+    inames <- lapply(seq_len(F), function(f) {
+        inames.all[F_inds[f, seq_len(F_inds_num[f])]]
+    })
+    enames <- object$meta$enames
+    exo <- object$meta$exo
+    gp <- object$meta$gp
+
+    .summary <- function(x) {
+        m <- mean(x)
+        sd <- sd(x)
+        ci <- quantile(x, probs)
+        L <- ci[1]
+        U <- ci[2]
+        out <- c(m, sd, L, U)
+        names(out) <- c("Mean","SD",paste0("Q", probs*100))
+        return(out)
+    }
+
+    nu_loc <- .extract_transform(object$fit, "nu_loc")
+    nu_sca <- .extract_transform(object$fit, "nu_sca")
+    lambda_loc_mat <- .extract_transform(object$fit, "lambda_loc_mat")
+    lambda_sca_mat <- .extract_transform(object$fit, "lambda_sca_mat")
+
+    nu_loc_sum <- aperm(apply(nu_loc, 1, .summary), c(2,1))
+    nu_sca_sum <- aperm(apply(nu_sca, 1, .summary), c(2,1))
+    dimnames(nu_loc_sum)[[1]] <- dimnames(nu_sca_sum)[[1]] <- inames.all
+
+    lambda_loc_mat_sum <- aperm(apply(lambda_loc_mat, c(1,2), .summary), c(3,1,2))
+    lambda_sca_mat_sum <- aperm(apply(lambda_sca_mat, c(1,2), .summary), c(3,1,2))
+    dimnames(lambda_loc_mat_sum)[[3]] <- dimnames(lambda_sca_mat_sum)[[3]] <- fnames
+    dimnames(lambda_loc_mat_sum)[[1]] <- dimnames(lambda_sca_mat_sum)[[1]] <- inames.all
+
+    theta_cor <- .extract_transform(object$fit, "theta_cor")
+    theta_cor_sum <- aperm(apply(theta_cor, c(1, 2), .summary), c(2, 1, 3))
+
+    # Collects names of objects to return via mget.
+    outNames <- c("nu_loc_sum", "nu_sca_sum", "lambda_loc_mat_sum", "lambda_sca_mat_sum", "theta_cor_sum")
+
+    if (gp) {
+        gp_linear <- .extract_transform(object$fit, "gp_linear")
+        gp_alpha <- .extract_transform(object$fit, "gp_alpha")
+        gp_rho <- .extract_transform(object$fit, "gp_rho")
+
+        gp_linear_sum <- aperm(apply(gp_linear, 1, .summary), c(2, 1))
+        gp_alpha_sum <- aperm(apply(gp_alpha, 1, .summary), c(2, 1))
+        gp_rho_sum <- aperm(apply(gp_rho, 1, .summary), c(2, 1))
+
+        dimnames(gp_linear_sum)[[1]] <- dimnames(gp_alpha_sum)[[1]] <- dimnames(gp_rho_sum)[[1]] <- fnames
+        dimnames(theta_cor_sum)[[1]] <- dimnames(theta_cor_sum)[[3]] <- fnames
+
+        outNames <- c(outNames, "gp_linear_sum", "gp_alpha_sum", "gp_rho_sum")
+
+        if (exo) {
+            exo_gp_linear <- .extract_transform(object$fit, "exo_gp_linear")
+            exo_gp_alpha <- .extract_transform(object$fit, "exo_gp_alpha")
+            exo_gp_rho <- .extract_transform(object$fit, "exo_gp_rho")
+
+            exo_gp_linear_sum <- aperm(apply(exo_gp_linear, c(1, 2), .summary), c(2, 1, 3))
+            exo_gp_alpha_sum <- aperm(apply(exo_gp_alpha, c(1, 2), .summary), c(2, 1, 3))
+            exo_gp_rho_sum <- aperm(apply(exo_gp_rho, c(1, 2), .summary), c(2, 1, 3))
+            dimnames(exo_gp_linear_sum)[[3]] <- dimnames(exo_gp_alpha_sum)[[3]] <- dimnames(exo_gp_rho_sum)[[3]] <- paste0(fnames, "_Error")
+            dimnames(exo_gp_linear_sum)[[1]] <- dimnames(exo_gp_alpha_sum)[[1]] <- dimnames(exo_gp_rho_sum)[[1]] <- enames$terms
+
+            outNames <- c(outNames, "exo_gp_linear_sum", "exo_gp_alpha_sum", "exo_gp_rho_sum")
+        }
+    } else { # Not GP
+       dimnames(theta_cor_sum)[[1]] <- dimnames(theta_cor_sum)[[3]] <- c(fnames, paste0(fnames, "_Error"))
+
+       outNames <- c(outNames, "theta_cor_sum")
+
+       if (exo) {
+           exo_beta <- .extract_transform(object$fit, "exo_beta")
+           exo_beta_sum <- aperm(apply(exo_beta, c(1, 2), .summary), c(2, 1, 3))
+           dimnames(exo_beta_sum)[[3]] <- paste0(fnames, "_Error")
+           dimnames(exo_beta_sum)[[1]] <- enames$terms
+
+           outNames <- c(outNames, "exo_beta_sum")
+       }
+    }
+    out <- mget(outNames)
+    names(out) <- gsub("_sum", "", outNames)
+
+    return(out)
 }
 ##' Prints summary.omegad objects.
 ##'
