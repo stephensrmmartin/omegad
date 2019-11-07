@@ -138,6 +138,8 @@ summary.omegad <- function(object, prob = .95, ...) {
     out$meta <- object$meta
     out$diagnostics <- object$diagnostics
 
+    class(out) <- "summary.omegad"
+
     return(out)
 }
 ##' Prints summary.omegad objects.
@@ -150,7 +152,77 @@ summary.omegad <- function(object, prob = .95, ...) {
 ##' @author Stephen R. Martin
 ##' @export
 print.summary.omegad <- function(x, ...) {
-    
+    .cat_line()
+    cat("Diagnostics: \n")
+    # .print_diagnostics(x)
+    .cat_line()
+    cat("Model Description: \n")
+    cat(.get_model_description(x), "\n")
+    .cat_line()
+
+    # Loadings
+    cat("Loadings: \n")
+    for (f in 1:x$meta$F) {
+        fname <- x$meta$fnames$factor[[f]]
+        inames <- x$meta$fnames$indicator[[f]]
+        cat(fname, "[Location] \n")
+        print(x$summary$lambda_loc_mat[inames,,fname])
+        cat("\n")
+
+        cat(fname, "[Error] \n" )
+        print(x$summary$lambda_sca_mat[inames,,fname])
+        cat("\n")
+    }
+
+    # Intercepts
+    cat("Intercepts: \n")
+    cat("[Location] \n")
+    print(x$summary$nu_loc)
+    cat("\n")
+    cat("[Log SD] \n")
+    print(x$summary$nu_sca)
+    cat("\n")
+
+    # Covariance
+    if (x$meta$F > 1 | !x$meta$gp) {
+        cat("Latent Correlations: \n")
+        print(x$summary$theta_cor[,"Mean",])
+        cat("\n")
+    }
+
+    # GP
+    if (x$meta$gp) {
+        cat("Approximate Gaussian Process: \n")
+        cat("[Linear] \n")
+        print(x$summary$gp_linear)
+        cat("[Alpha] \n")
+        print(x$summary$gp_alpha)
+        cat("[Length scale] \n")
+        print(x$summary$gp_rho)
+        cat("\n")
+    }
+    # Exogenous
+    if (x$meta$exo) {
+        cat("Exogenous Variables: \n")
+        if (x$meta$gp) {
+            for (f in 1:x$meta$F) {
+                fname <- x$meta$fnames$factor[[f]]
+                cat(fname, "\n")
+                print(x$summary$exo_gp_linear[,, fname])
+                print(x$summary$exo_gp_alpha[,, fname])
+                print(x$summary$exo_gp_rho[,, fname])
+                cat("\n")
+            }
+        } else {
+            for (f in 1:x$meta$F) {
+                fname <- x$meta$fnames$factor[[f]]
+                cat(fname, "\n")
+                print(x$summary$exo_beta[,, fname])
+                cat("\n")
+            }
+        }
+
+    }
     return(invisible(x))
 }
 
@@ -172,4 +244,9 @@ print.summary.omegad <- function(x, ...) {
     }
 
     return(out)
+}
+
+.cat_line <- function(n = 40) {
+    str <- c(paste0(rep("-", n), collapse=""), "\n")
+    cat(str)
 }
