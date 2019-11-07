@@ -138,6 +138,12 @@ summary.omegad <- function(object, prob = .95, ...) {
     out$meta <- object$meta
     out$diagnostics <- object$diagnostics
 
+    dots <- list(...)
+    if (is.null(dots$digits)) {
+        dots$digits <- 3
+    }
+    out$meta$digits <- dots$digits
+
     class(out) <- "summary.omegad"
 
     return(out)
@@ -152,6 +158,12 @@ summary.omegad <- function(object, prob = .95, ...) {
 ##' @author Stephen R. Martin
 ##' @export
 print.summary.omegad <- function(x, ...) {
+    digits <- x$meta$digits
+    dots <- list(...)
+    if (!is.null(dots$digits)) {
+       digits <- dots$digits 
+    }
+
     .cat_line()
     cat("Diagnostics: \n")
     # .print_diagnostics(x)
@@ -166,27 +178,27 @@ print.summary.omegad <- function(x, ...) {
         fname <- x$meta$fnames$factor[[f]]
         inames <- x$meta$fnames$indicator[[f]]
         cat(fname, "[Location] \n")
-        print(x$summary$lambda_loc_mat[inames,,fname])
+        print(x$summary$lambda_loc_mat[inames,,fname], digits = digits)
         cat("\n")
 
         cat(fname, "[Error] \n" )
-        print(x$summary$lambda_sca_mat[inames,,fname])
+        print(x$summary$lambda_sca_mat[inames,,fname], digits = digits)
         cat("\n")
     }
 
     # Intercepts
     cat("Intercepts: \n")
     cat("[Location] \n")
-    print(x$summary$nu_loc)
+    print(x$summary$nu_loc, digits = digits)
     cat("\n")
     cat("[Log SD] \n")
-    print(x$summary$nu_sca)
+    print(x$summary$nu_sca, digits = digits)
     cat("\n")
 
     # Covariance
     if (x$meta$F > 1 | !x$meta$gp) {
         cat("Latent Correlations: \n")
-        print(x$summary$theta_cor[,"Mean",])
+        print(x$summary$theta_cor[,"Mean",], digits = digits)
         cat("\n")
     }
 
@@ -194,11 +206,11 @@ print.summary.omegad <- function(x, ...) {
     if (x$meta$gp) {
         cat("Approximate Gaussian Process: \n")
         cat("[Linear] \n")
-        print(x$summary$gp_linear)
+        print(x$summary$gp_linear, digits = digits)
         cat("[Alpha] \n")
-        print(x$summary$gp_alpha)
+        print(x$summary$gp_alpha, digits = digits)
         cat("[Length scale] \n")
-        print(x$summary$gp_rho)
+        print(x$summary$gp_rho, digits = digits)
         cat("\n")
     }
     # Exogenous
@@ -208,16 +220,16 @@ print.summary.omegad <- function(x, ...) {
             for (f in 1:x$meta$F) {
                 fname <- paste0(x$meta$fnames$factor[[f]],"_Error")
                 cat(fname, "\n")
-                print(x$summary$exo_gp_linear[,, fname])
-                print(x$summary$exo_gp_alpha[,, fname])
-                print(x$summary$exo_gp_rho[,, fname])
+                print(x$summary$exo_gp_linear[,, fname], digits = digits)
+                print(x$summary$exo_gp_alpha[,, fname], digits = digits)
+                print(x$summary$exo_gp_rho[,, fname], digits = digits)
                 cat("\n")
             }
         } else {
             for (f in 1:x$meta$F) {
                 fname <- paste0(x$meta$fnames$factor[[f]],"_Error")
                 cat(fname, "\n")
-                print(x$summary$exo_beta[,, fname])
+                print(x$summary$exo_beta[,, fname], digits = digits)
                 cat("\n")
             }
         }
