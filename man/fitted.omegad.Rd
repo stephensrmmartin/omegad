@@ -11,7 +11,7 @@
 
 \item{summary}{Logical (Default: TRUE). Whether to return summary or array of samples.}
 
-\item{prob}{Numeric (Default: .95). The amount of probability mass to include within the credible. Default values provide a 95\% credible interval.}
+\item{prob}{Numeric (Default: .95). The amount of probability mass to include within the credible interval. Default values provide a 95\% credible interval.}
 
 \item{...}{Unused.}
 }
