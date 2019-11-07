@@ -10,8 +10,6 @@
 \item{formList}{Formula list (one entry per factor)}
 
 \item{mm}{Model matrix}
-
-\item{names}{Output of .get_names_formulaList}
 }
 \value{
 FxJ matrix with the indicator indices for each factor. Padded with zeroes.
