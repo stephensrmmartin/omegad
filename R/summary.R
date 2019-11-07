@@ -228,17 +228,17 @@ print.summary.omegad <- function(x, ...) {
 
 .get_model_description <- function(object) {
     if (object$meta$gp) {
-        out <- c("\n \t [Factor -> Error Factor]",
-                 paste0("\t Univariate gaussian process: Additive linear and exponential quadratic kernels (", object$meta$M, " basis functions) ")
+        out <- c("\n\t[Factor -> Error Factor]",
+                 paste0("\tUnivariate gaussian process: Additive linear and exponential quadratic kernels (", object$meta$M, " basis functions) ")
                  )
         if (object$meta$exo) {
-            out <- c(out[1], "\t [Exogenous -> Error Factor]", out[2])
+            out <- c(out[1], "\t[Exogenous -> Error Factor]", out[2])
         }
         out <- paste0(out, collapse = "\n")
     } else {
-        out <- c("\n \t [Factors -> Error Factors]", "\t Covariance only")
+        out <- c("\n \t[Factors <-> Error Factors]", "\tCovariance only")
         if (object$meta$exo) {
-            out <- c(out, "\t [Exogenous -> Factor]", "\t Linear model")
+            out <- c(out, "\t[Exogenous -> Error Factors]", "\tLinear model")
         }
         out <- paste0(out, collapse = "\n")
     }
