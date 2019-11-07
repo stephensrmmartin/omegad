@@ -104,6 +104,7 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
 ##' @param sigma Covariance matrix (all variables).
 ##' @return List containing expected values (mu, matrix) and covariance matrix (sigma, matrix).
 ##' @author Stephen R. Martin
+##' @keywords internal
 .cond_mvn <- function(x, mu, sigma) {
     K <- ncol(sigma)
     N <- nrow(x)

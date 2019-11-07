@@ -18,4 +18,3 @@ Extracts the number of posterior samples tored in a fitted omegad model.
 \author{
 Stephen R. Martin
 }
-\keyword{internal}
