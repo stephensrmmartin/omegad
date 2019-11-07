@@ -206,7 +206,7 @@ print.summary.omegad <- function(x, ...) {
         cat("Exogenous Variables: \n")
         if (x$meta$gp) {
             for (f in 1:x$meta$F) {
-                fname <- x$meta$fnames$factor[[f]]
+                fname <- paste0(x$meta$fnames$factor[[f]],"_Error")
                 cat(fname, "\n")
                 print(x$summary$exo_gp_linear[,, fname])
                 print(x$summary$exo_gp_alpha[,, fname])
@@ -215,7 +215,7 @@ print.summary.omegad <- function(x, ...) {
             }
         } else {
             for (f in 1:x$meta$F) {
-                fname <- x$meta$fnames$factor[[f]]
+                fname <- paste0(x$meta$fnames$factor[[f]],"_Error")
                 cat(fname, "\n")
                 print(x$summary$exo_beta[,, fname])
                 cat("\n")
