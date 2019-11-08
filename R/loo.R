@@ -33,16 +33,16 @@ loo.omegad <- function(x, items = FALSE, ...) {
     theta_sca <- theta[, (F + 1):(2 * F), , drop = FALSE]
     lambda_loc <- .extract_transform(x$fit, "lambda_loc_mat")
     lambda_sca <- .extract_transform(x$fit, "lambda_sca_mat")
-    nu_loc <- t(.extract_transform(x$fit, "nu_loc"))
-    nu_sca <- t(.extract_transform(x$fit, "nu_sca"))
+    nu_loc <- .extract_transform(x$fit, "nu_loc")
+    nu_sca <- .extract_transform(x$fit, "nu_sca")
 
     xhat <- array(0, dim = c(N, J, S))
     shat <- array(0, dim = c(N, J, S))
     LL <- array(0, dim = c(N, J, S))
 
     for (s in 1:S) {
-        xhat[,, s] <- matrix(1, nrow = N, ncol = 1) %*% .array_extract(t(nu_loc), s) + .array_extract(theta_loc, s) %*% .array_extract(lambda_loc, s)
-        shat[,, s] <- exp(matrix(1, nrow = N, ncol = 1) %*% .array_extract(t(nu_sca), s) + .array_extract(theta_sca, s) %*% .array_extract(lambda_sca, s))
+        xhat[,, s] <- matrix(1, nrow = N, ncol = 1) %*% t(.array_extract(nu_loc, s)) + .array_extract(theta_loc, s) %*% .array_extract(lambda_loc, s)
+        shat[,, s] <- exp(matrix(1, nrow = N, ncol = 1) %*% t(.array_extract(nu_sca, s)) + .array_extract(theta_sca, s) %*% .array_extract(lambda_sca, s))
         LL[,, s] <- dnorm(xobs, xhat[,,s], shat[,,s], log = TRUE)
     }
 
