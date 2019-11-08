@@ -1,7 +1,7 @@
 Package: omegad
-Title: What the Package Does (One Line, Title Case)
+Title: Estimates omega reliability coefficients across the latent domain.
 Version: 0.0.0.9000
-Date: 2019-08-27
+Date: 2019-11-07
 Authors@R: 
     c(
         person(given = "Stephen R.",
@@ -17,13 +17,14 @@ Authors@R:
            role = c("aut" ),
            email = "prast@ucdavis.edu")
     )
-Description: What the package does (one paragraph).
+Description: Fits an location-scale Bayesian latent variable model for examining how reliability varies across the latent domain itself and exogenous variables. The model includes a latent Error factor for each typical latent factor. Whereas typical latent factors model the expected indicator responses, the Error factors model the residual standard deviations. Consequently, omega reliability depends on Error factor scores. The relationship between the Error factor scores and their corresponding factors are modeled either linearly or with non-linearly with approximate gaussian processes. Similar to IRT, researchers can examine how reliability varies across the domain of the factor itself. Error factors can be modeled from exogenous variables in order to examine predictors of poor reliability.
 URL: https://github.com/stephensrmmartin/omegad
 BugReports: https://github.com/stephensrmmartin/omegad/issues
 License: GPL (>=3)
 Encoding: UTF-8
 LazyData: true
 Biarch: true
+NeedsCompilation: true
 Depends: 
     R (>= 3.4.0)
 Imports: 
@@ -33,7 +34,8 @@ Imports:
     rstantools (>= 2.0.0.9000),
     parallel (>= 3.6.0),
     Formula (>= 1.2.0),
-    mvtnorm (>= 1.0-1)
+    mvtnorm (>= 1.0-1),
+    loo (>= 2.1.0)
 LinkingTo: 
     BH (>= 1.66.0),
     Rcpp (>= 0.12.0),

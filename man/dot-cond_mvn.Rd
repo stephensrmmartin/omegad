@@ -26,3 +26,4 @@ That is, if sigma is 10x10, and mu is 10, and x is Nx4, then the last Nx6 are co
 \author{
 Stephen R. Martin
 }
+\keyword{internal}
