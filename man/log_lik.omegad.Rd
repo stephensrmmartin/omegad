@@ -2,7 +2,7 @@
 % Please edit documentation in R/rstantools.R
 \name{log_lik.omegad}
 \alias{log_lik.omegad}
-\title{log_lik method for omegad objects.}
+\title{Compute log likelihoods for each observation (and item).}
 \usage{
 \method{log_lik}{omegad}(object, items = FALSE)
 }
@@ -19,6 +19,9 @@ log_lik method for omegad objects.
 }
 \details{
 log_lik method for omegad objects.
+}
+\seealso{
+\code{\link[rstantools]{log_lik}}
 }
 \author{
 Stephen R. Martin

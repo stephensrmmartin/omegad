@@ -1,7 +1,7 @@
-##' Predicts omega reliability from provided data.
+##' Predict Error factor scores and reliability coefficients from new data.
 ##'
-##' Empty for now.
-##' @title Predict method for omegad object.
+##' Given a data frame with factor scores and exogenous variables, this function predicts corresponding Error scores and omega1/omega2 coefficients.
+##' @title Predict Error factor scores, omega1, and omega2 values.
 ##' @param object omegad object.
 ##' @param newdata Data.frame. Must contain the exogenous (if used) and latent factor names.
 ##' @param summary Logical (Default: TRUE). Whether to return summary or array of samples.

@@ -2,7 +2,7 @@
 % Please edit documentation in R/predict.R
 \name{predict.omegad}
 \alias{predict.omegad}
-\title{Predict method for omegad object.}
+\title{Predict Error factor scores, omega1, and omega2 values.}
 \usage{
 \method{predict}{omegad}(object, newdata, summary = TRUE, prob = 0.95,
   nsamples = NULL, error = TRUE, ...)
@@ -31,10 +31,10 @@ The factor dimension is named, allowing for \code{out$omega1[,,"agreeableness"]}
 If \code{summary = FALSE}, then the arrays are of size [N, F, S], where S is the number of samples (\code{nsamples}).
 }
 \description{
-Predicts omega reliability from provided data.
+Predict Error factor scores and reliability coefficients from new data.
 }
 \details{
-Empty for now.
+Given a data frame with factor scores and exogenous variables, this function predicts corresponding Error scores and omega1/omega2 coefficients.
 }
 \author{
 Stephen R. Martin

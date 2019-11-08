@@ -2,7 +2,7 @@
 % Please edit documentation in R/summary.R
 \name{print.summary.omegad}
 \alias{print.summary.omegad}
-\title{Print method for summary.omegad object.}
+\title{Print method for omegad summaries.}
 \usage{
 \method{print}{summary.omegad}(x, ...)
 }

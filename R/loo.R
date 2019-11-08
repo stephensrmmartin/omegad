@@ -1,7 +1,7 @@
 ##' LOO method for omegad objects.
 ##'
 ##' LOO method for omegad objects.
-##' @title omegad method for computing leave-one-out CV scores.
+##' @title Compute leave-one-out (LOO) scores.
 ##' @param x omegad object.
 ##' @param items Logical (Default: FALSE). Whether to compute LOO per item, per observation (TRUE), or just per observation (FALSE).
 ##' @param ... Arguments passed to \code{\link[loo]{loo}}.
@@ -10,6 +10,7 @@
 ##' @import loo
 ##' @export loo
 ##' @export
+##' @seealso \code{\link[loo]{loo}}
 loo.omegad <- function(x, items = FALSE, ...) {
     dots <- list(...)
     r.LL <- dots$log_lik
