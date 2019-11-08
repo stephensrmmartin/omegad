@@ -1,7 +1,7 @@
 ##' LOO method for omegad objects.
 ##'
 ##' LOO method for omegad objects.
-##' @title omegad method for computing leave-one-out CV scores.
+##' @title Compute leave-one-out (LOO) scores.
 ##' @param x omegad object.
 ##' @param items Logical (Default: FALSE). Whether to compute LOO per item, per observation (TRUE), or just per observation (FALSE).
 ##' @param ... Arguments passed to \code{\link[loo]{loo}}.
@@ -9,7 +9,9 @@
 ##' @author Stephen R. Martin
 ##' @import loo
 ##' @export loo
+##' @aliases loo
 ##' @export
+##' @seealso \code{\link[loo]{loo}}
 loo.omegad <- function(x, items = FALSE, ...) {
     dots <- list(...)
     r.LL <- dots$log_lik
@@ -31,16 +33,16 @@ loo.omegad <- function(x, items = FALSE, ...) {
     theta_sca <- theta[, (F + 1):(2 * F), , drop = FALSE]
     lambda_loc <- .extract_transform(x$fit, "lambda_loc_mat")
     lambda_sca <- .extract_transform(x$fit, "lambda_sca_mat")
-    nu_loc <- t(.extract_transform(x$fit, "nu_loc"))
-    nu_sca <- t(.extract_transform(x$fit, "nu_sca"))
+    nu_loc <- .extract_transform(x$fit, "nu_loc")
+    nu_sca <- .extract_transform(x$fit, "nu_sca")
 
     xhat <- array(0, dim = c(N, J, S))
     shat <- array(0, dim = c(N, J, S))
     LL <- array(0, dim = c(N, J, S))
 
     for (s in 1:S) {
-        xhat[,, s] <- matrix(1, nrow = N, ncol = 1) %*% .array_extract(t(nu_loc), s) + .array_extract(theta_loc, s) %*% .array_extract(lambda_loc, s)
-        shat[,, s] <- exp(matrix(1, nrow = N, ncol = 1) %*% .array_extract(t(nu_sca), s) + .array_extract(theta_sca, s) %*% .array_extract(lambda_sca, s))
+        xhat[,, s] <- matrix(1, nrow = N, ncol = 1) %*% t(.array_extract(nu_loc, s)) + .array_extract(theta_loc, s) %*% .array_extract(lambda_loc, s)
+        shat[,, s] <- exp(matrix(1, nrow = N, ncol = 1) %*% t(.array_extract(nu_sca, s)) + .array_extract(theta_sca, s) %*% .array_extract(lambda_sca, s))
         LL[,, s] <- dnorm(xobs, xhat[,,s], shat[,,s], log = TRUE)
     }
 

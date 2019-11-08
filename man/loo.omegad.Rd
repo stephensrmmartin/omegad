@@ -2,7 +2,8 @@
 % Please edit documentation in R/loo.R
 \name{loo.omegad}
 \alias{loo.omegad}
-\title{omegad method for computing leave-one-out CV scores.}
+\alias{loo}
+\title{Compute leave-one-out (LOO) scores.}
 \usage{
 \method{loo}{omegad}(x, items = FALSE, ...)
 }
@@ -21,6 +22,9 @@ LOO method for omegad objects.
 }
 \details{
 LOO method for omegad objects.
+}
+\seealso{
+\code{\link[loo]{loo}}
 }
 \author{
 Stephen R. Martin

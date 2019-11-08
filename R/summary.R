@@ -151,7 +151,7 @@ summary.omegad <- function(object, prob = .95, ...) {
 ##' Prints summary.omegad objects.
 ##'
 ##' Prints summary.omegad objects.
-##' @title Print method for summary.omegad object.
+##' @title Print method for omegad summaries.
 ##' @param x summary.omegad object.
 ##' @param ... Not used.
 ##' @return x (invisible)

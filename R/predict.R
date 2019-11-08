@@ -1,7 +1,7 @@
-##' Predicts omega reliability from provided data.
+##' Predict Error factor scores and reliability coefficients from new data.
 ##'
-##' Empty for now.
-##' @title Predict method for omegad object.
+##' Given a data frame with factor scores and exogenous variables, this function predicts corresponding Error scores and omega1/omega2 coefficients.
+##' @title Predict Error factor scores, omega1, and omega2 values.
 ##' @param object omegad object.
 ##' @param newdata Data.frame. Must contain the exogenous (if used) and latent factor names.
 ##' @param summary Logical (Default: TRUE). Whether to return summary or array of samples.
@@ -9,7 +9,6 @@
 ##' @param nsamples Numeric (Default: All). Number of posterior samples to use.
 ##' @param error Logical (Default: TRUE). Whether the predicted latent variables are sampled with stochastic error or not.
 ##' @param ... Unused.
-##' @param samples Numeric (Default: All). Number of posterior samples to use.
 ##' @return List of arrays. The list contains arrays of posterior summaries (\code{summary = TRUE}) or samples (\code{summary = FALSE}) for the predicted error factor, omega1, and omega2.
 ##' If \code{summary = TRUE}, then the arrays are of size [N, 4, F], where N is the number of predicted observations, the four columns correspond to the summary statistics (mean, sd, and intervals), and F is the number of factors.
 ##' The factor dimension is named, allowing for \code{out$omega1[,,"agreeableness"]}.
@@ -246,13 +245,13 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
             if (exo) {
                 for (p in 1:(P-1)) {
                     theta_sca[,f , s] <- theta_sca[,f , s] +
-                        .spd_gp_fast(exo_gp_phis[[f]], exo_gp_alpha[p,f,s], gp_rho[p,f,s], lambdas, exo_gp_z[,f, p,s]) +
+                        .spd_gp_fast(gp_exo_phis[[f]], exo_gp_alpha[p,f,s], gp_rho[p,f,s], lambdas, exo_gp_z[,f, p,s]) +
                         exo_x[,(p + 1)]*exo_gp_linear[p,f,s]
                 }
             }
         }
         # Compute omegas
-        shat <- exp(matrix(1,ncol=1,nrow=N)%*%.array_extract(t(nu_sca),s) + .array_extract(theta_sca, s) %*% .array_extract(lambda_sca_mat, s))
+        shat <- exp(matrix(1,ncol=1,nrow=N)%*%t(.array_extract(nu_sca,s)) + .array_extract(theta_sca, s) %*% .array_extract(lambda_sca_mat, s))
         omega1[,,s] <- omega_one(.array_extract(lambda_loc_mat, s), F_inds, F_inds_num, shat)
         omega2[,,s] <- omega_two(.array_extract(lambda_loc_mat, s), F_inds, F_inds_num, .array_extract(theta_cor_L, s), shat)
     }
