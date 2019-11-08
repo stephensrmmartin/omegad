@@ -2,12 +2,15 @@
 % Please edit documentation in R/rstantools.R
 \name{nsamples.omegad}
 \alias{nsamples.omegad}
+\alias{nsamples}
 \title{Extract number of posterior samples.}
 \usage{
-\method{nsamples}{omegad}(object)
+\method{nsamples}{omegad}(object, ...)
 }
 \arguments{
 \item{object}{omegad object.}
+
+\item{...}{Not used.}
 }
 \value{
 Integer. How many posterior post-warmup samples were drawn.

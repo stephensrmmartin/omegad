@@ -73,7 +73,7 @@
 }
 
 .summarize_chains <- function(object, chains, par) {
-    samps <- extract(object$fit, par, permuted = FALSE)
+    samps <- rstan::extract(object$fit, par, permuted = FALSE)
     samps <- samps[,chains,, drop = FALSE]
-    monitor(samps, warmup = 0, digits_summary = 4)
+    rstan::monitor(samps, warmup = 0, digits_summary = 4)
 }

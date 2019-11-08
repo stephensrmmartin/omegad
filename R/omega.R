@@ -14,7 +14,7 @@
 #'
 #' \code{list(agree ~ A1 + A2 + A3 + A4 + A5, open ~ O1 + O2 + O3 + O4 + O5)}
 #'
-#' If \code{\link{lavaan}} is familiar to you, then a lavaan formula such as:
+#' If \code{\link[lavaan]{lavaan}} is familiar to you, then a lavaan formula such as:
 #' \code{agree =~ A1 + A2} is identical to an \code{omegad} formula of \code{agree ~ A1 + A2}.
 #' 
 #' In addition, the ``Error'' factor(s) can be predicted using \code{Error ~ x1 + x2 + ...}.

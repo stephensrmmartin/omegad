@@ -2,6 +2,7 @@
 % Please edit documentation in R/loo.R
 \name{loo.omegad}
 \alias{loo.omegad}
+\alias{loo}
 \title{Compute leave-one-out (LOO) scores.}
 \usage{
 \method{loo}{omegad}(x, items = FALSE, ...)

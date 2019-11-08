@@ -3,7 +3,6 @@
 \docType{package}
 \name{omegad-package}
 \alias{omegad-package}
-\alias{omegad}
 \title{The 'omegad' package.}
 \description{
 A DESCRIPTION OF THE PACKAGE

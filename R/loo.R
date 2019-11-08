@@ -9,6 +9,7 @@
 ##' @author Stephen R. Martin
 ##' @import loo
 ##' @export loo
+##' @aliases loo
 ##' @export
 ##' @seealso \code{\link[loo]{loo}}
 loo.omegad <- function(x, items = FALSE, ...) {

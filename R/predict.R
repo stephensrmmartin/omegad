@@ -9,7 +9,6 @@
 ##' @param nsamples Numeric (Default: All). Number of posterior samples to use.
 ##' @param error Logical (Default: TRUE). Whether the predicted latent variables are sampled with stochastic error or not.
 ##' @param ... Unused.
-##' @param samples Numeric (Default: All). Number of posterior samples to use.
 ##' @return List of arrays. The list contains arrays of posterior summaries (\code{summary = TRUE}) or samples (\code{summary = FALSE}) for the predicted error factor, omega1, and omega2.
 ##' If \code{summary = TRUE}, then the arrays are of size [N, 4, F], where N is the number of predicted observations, the four columns correspond to the summary statistics (mean, sd, and intervals), and F is the number of factors.
 ##' The factor dimension is named, allowing for \code{out$omega1[,,"agreeableness"]}.
@@ -246,7 +245,7 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
             if (exo) {
                 for (p in 1:(P-1)) {
                     theta_sca[,f , s] <- theta_sca[,f , s] +
-                        .spd_gp_fast(exo_gp_phis[[f]], exo_gp_alpha[p,f,s], gp_rho[p,f,s], lambdas, exo_gp_z[,f, p,s]) +
+                        .spd_gp_fast(gp_exo_phis[[f]], exo_gp_alpha[p,f,s], gp_rho[p,f,s], lambdas, exo_gp_z[,f, p,s]) +
                         exo_x[,(p + 1)]*exo_gp_linear[p,f,s]
                 }
             }

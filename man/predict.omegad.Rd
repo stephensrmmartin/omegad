@@ -21,8 +21,6 @@
 \item{error}{Logical (Default: TRUE). Whether the predicted latent variables are sampled with stochastic error or not.}
 
 \item{...}{Unused.}
-
-\item{samples}{Numeric (Default: All). Number of posterior samples to use.}
 }
 \value{
 List of arrays. The list contains arrays of posterior summaries (\code{summary = TRUE}) or samples (\code{summary = FALSE}) for the predicted error factor, omega1, and omega2.
