@@ -11,7 +11,7 @@
 
 \item{items}{Logical (Default: FALSE). Whether to compute LOO per item, per observation (TRUE), or just per observation (FALSE).}
 
-\item{...}{}
+\item{...}{Arguments passed to \code{\link[loo]{loo}}.}
 }
 \value{
 LOO object (if items = FALSE). List of LOO objects, one for each item (if items = TRUE).
