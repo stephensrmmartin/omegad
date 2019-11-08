@@ -165,7 +165,7 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
             theta_sca[,,s] <- .array_extract(theta_sca, s) + exo_x[,(2:P)] %*% .array_extract(exo_beta, s)
         }
         # Compute omegas
-        shat <- exp(matrix(1,ncol=1,nrow=N)%*%.array_extract(t(nu_sca),s) + .array_extract(theta_sca, s) %*% .array_extract(lambda_sca_mat, s))
+        shat <- exp(matrix(1,ncol=1,nrow=N)%*%t(.array_extract(nu_sca,s)) + .array_extract(theta_sca, s) %*% .array_extract(lambda_sca_mat, s))
         omega1[,,s] <- omega_one(.array_extract(lambda_loc_mat, s), F_inds, F_inds_num, shat)
         omega2[,,s] <- omega_two(.array_extract(lambda_loc_mat, s), F_inds, F_inds_num, .array_extract(theta_cor_L, s), shat)
     }
