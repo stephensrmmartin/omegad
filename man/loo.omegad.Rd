@@ -4,15 +4,17 @@
 \alias{loo.omegad}
 \title{omegad method for computing leave-one-out CV scores.}
 \usage{
-\method{loo}{omegad}(object, ...)
+\method{loo}{omegad}(x, items = FALSE, ...)
 }
 \arguments{
-\item{object}{omegad object.}
+\item{x}{omegad object.}
+
+\item{items}{Logical (Default: FALSE). Whether to compute LOO per item, per observation (TRUE), or just per observation (FALSE).}
 
 \item{...}{}
 }
 \value{
-loo object.
+LOO object (if items = FALSE). List of LOO objects, one for each item (if items = TRUE).
 }
 \description{
 LOO method for omegad objects.
