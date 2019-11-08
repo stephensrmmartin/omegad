@@ -49,20 +49,21 @@ loo.omegad <- function(x, items = FALSE, ...) {
             out <- t(LL[, J, ])
             out
         })
-        ## r_eff <- lapply(log_lik, function(j) {
-        ##     out <- relative_eff(exp(j))
-        ##     out
-        ## })
-        looOut <- lapply(seq_len(J), function(j) {
-            do.call(loo, c(list(x = log_lik[[j]]), dots))
-        })
-        names(looOut) <- colnames(xobs)
+        names(log_lik) <- colnames(xobs)
+        if (!r.LL) {
+            looOut <- lapply(seq_len(J), function(j) {
+                do.call(loo, c(list(x = log_lik[[j]]), dots))
+            })
+            names(looOut) <- colnames(xobs)
+        }
     } else {
         log_lik <- apply(LL, c(1, 3), function(x) {
             sum(x)
         })
         log_lik <- t(log_lik)
-        looOut <- do.call(loo, c(list(x = log_lik), dots))
+        if (!r.LL) {
+            looOut <- do.call(loo, c(list(x = log_lik), dots))
+        }
     }
 
     if (r.LL) {
