@@ -34,6 +34,7 @@ reliability.lavaan.mi <- function(object, ...) {
 ##' @return Matrix containing omega summaries for each factor.
 ##' @inheritParams predict.omegad
 ##' @describeIn reliability omegad method.
+##' @export
 reliability.omegad <- function(object, prob = .95, ...) {
     probs <- .prob_to_probs(prob)
 
