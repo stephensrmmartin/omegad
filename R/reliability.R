@@ -118,10 +118,28 @@ print.reliability.omegad <- function(x, ...) {
 ##'
 ##' 
 ##' @title lavaanify omegad models.
-##' @param omegad omegad object.
+##' @param object omegad object.
 ##' @return list containing the Character string of lavaan model, equivalent options, and data frame for use in do.call.
 ##' @author Stephen R. Martin
 ##' @keywords internal
-.omegad2lavaan <- function(omegad) {
-    
+.omegad2lavaan <- function(object) {
+    formPieces <- object$meta$fnames
+    F <- object$meta$F
+    formChars <- lapply(1:F, function(x) {
+        paste0(formPieces$factor[[x]], " =~ ", paste0(formPieces$indicator[[x]], collapse = " +"), " \n")
+    })
+    modelChar <- paste0(unlist(formChars))
+
+    out <- list(model = modelChar, data = object$data)
+    return(out)
+}
+##' @title Compute omegas using lavaan.
+##' @param object omegad object.
+##' @return Reliability output from \code{\link[semTools]{reliability}}.
+##' @author Stephen R. Martin
+##' @keywords internal
+.lavOmega <- function(object) {
+    fun <- get("cfa", asNamespace("lavaan"))
+    lavOut <- do.call('fun', .omegad2lavaan(object))
+    reliability(lavOut)
 }
