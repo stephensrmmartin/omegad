@@ -64,8 +64,8 @@ reliability.omegad <- function(object, prob = .95, ...) {
         return(t(out))
     })
 
-    omg.1.0.sum <- apply(omg.1.0, 1, .fun)
-    omg.2.0.sum <- apply(omg.2.0, 1, .fun)
+    omg.1.0.sum <- apply(omg.1.0, 2, .fun)
+    omg.2.0.sum <- apply(omg.2.0, 2, .fun)
     omg.1.0.sum <- t(omg.1.0.sum)
     omg.2.0.sum <- t(omg.2.0.sum)
     rownames(omg.1.0.sum) <- rownames(omg.2.0.sum) <- unlist(object$meta$fnames$factor)
