@@ -18,4 +18,4 @@ Fit similar model in lavaan.
 \author{
 Stephen R. Martin
 }
-\keyword{inetrnal}
+\keyword{internal}
