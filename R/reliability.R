@@ -143,3 +143,14 @@ print.reliability.omegad <- function(x, ...) {
     lavOut <- do.call('fun', .omegad2lavaan(object))
     reliability(lavOut)
 }
+
+##' @title Fit similar model in lavaan.
+##' @param object omegad object.
+##' @return lavaan fit
+##' @author Stephen R. Martin
+##' @keywords inetrnal
+.lavFit <- function(object) {
+    fun <- get("cfa", asNamespace("lavaan"))
+    lavOut <- do.call('fun', .omegad2lavaan(object))
+    return(lavOut)
+}
