@@ -26,6 +26,9 @@
 #'
 #' @param formula Formula specifying the factor structure. See details.
 #' @param data Data frame containing indicators as columns.
+#' @param gp Logical (Default: FALSE). Whether to fit an approximate gaussian process model between latent factors (and exogenous variables) and their corresponding Error factors.
+#' @param M Integer (Default: 10). Only applicable if \code{gp = TRUE}. The number of basis functions to use in the approximate gaussian processes. Larger M provides a better approximation at a greater computational cost.
+#' @param rescale Logical (Default: TRUE). Whether to standardize the indicators and numeric exogenous predictors. The implemented priors assume approximately standardized indicators.
 #' @param ... Options passed onto \code{\link[rstan]{sampling}}.
 #'
 #' @importFrom rstan sampling
@@ -48,6 +51,12 @@ omegad <- function(formula, data, ...) {
       M <- dots$M
       dots$M <- NULL
   }
+  if (is.null(dots$rescale)) {
+      rescale <- TRUE
+  } else {
+      rescale <- dots$rescale
+      dots$rescale <- NULL
+  }
   if (is.null(dots$cores)) {
     dots$cores <- getOption("mc.cores")
     if (is.null(dots$cores)) {
@@ -64,10 +73,10 @@ omegad <- function(formula, data, ...) {
     dots$chains <- 4
   }
   if (is.null(dots$init)) {
-      dots$init = 0
+      dots$init <- 0
   }
 
-  d <- .parse_formula(formula, data)
+  d <- .parse_formula(formula, data, rescale)
   pars <- c("lambda_loc_mat",
             "lambda_sca_mat",
             "nu_loc",
@@ -126,13 +135,14 @@ omegad <- function(formula, data, ...) {
 #'
 #' @param formula Formula or list of formulas with factor name on LHS, indicators on RHS.
 #' @param data data.frame containing indicators.
+#' @param rescale Logical. Whether to standardize indicators.
 #' @param ... Currently not used.
 #'
 #' @import Formula
 #' @return stan_data list.
 #' @keywords internal
 #'
-.parse_formula <- function(formula, data, ...) {
+.parse_formula <- function(formula, data, rescale = TRUE, ...) {
   if (!is.list(formula)) {
     forms <- list(formula)
   } else {
@@ -171,6 +181,12 @@ omegad <- function(formula, data, ...) {
     warning("Removing ", n_before - n_after, " incomplete cases.")
   }
 
+  # Rescale indicators and non-factor exogenous variables?
+  if (rescale) {
+      which.nonfactor <- sapply(mf, is.numeric)
+      mf[,which.nonfactor] <- scale(mf[,which.nonfactor])
+  }
+
   # Extract out Exogenous variables
   whichExoForm <- which(fnames$factor == "Error")
   if (any(whichExoForm)) {
@@ -202,6 +218,7 @@ omegad <- function(formula, data, ...) {
   # Misc
   enames <- list(terms = attr(terms(exoForm.rhs), "term.labels"), vars = all.vars(exoForm.rhs))
   modelForms <- list(latent = forms, exo = exoForm.rhs)
+
 
   out <- list(stan_data = list(N = N, J = J, `F` = `F`, F_inds = F_inds, x = mm, exo_x = mm.exo, P = P),
               model.frame = mf,

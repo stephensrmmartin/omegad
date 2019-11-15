@@ -12,6 +12,12 @@ omegad(formula, data, ...)
 \item{data}{Data frame containing indicators as columns.}
 
 \item{...}{Options passed onto \code{\link[rstan]{sampling}}.}
+
+\item{gp}{Logical (Default: FALSE). Whether to fit an approximate gaussian process model between latent factors (and exogenous variables) and their corresponding Error factors.}
+
+\item{M}{Integer (Default: 10). Only applicable if \code{gp = TRUE}. The number of basis functions to use in the approximate gaussian processes. Larger M provides a better approximation at a greater computational cost.}
+
+\item{rescale}{Logical (Default: TRUE). Whether to standardize the indicators and numeric exogenous predictors. The implemented priors assume approximately standardized indicators.}
 }
 \value{
 omegad object.
