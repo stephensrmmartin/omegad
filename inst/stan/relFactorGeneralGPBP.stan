@@ -238,7 +238,8 @@ model {
   lambda_loc ~ gamma(6,10);
   lambda_sca ~ lognormal(0,1);
   nu_loc ~ std_normal();
-  nu_sca ~ std_normal();
+  // nu_sca ~ std_normal();
+  nu_sca ~ normal(-.5, 1);
   to_vector(theta_loc_z) ~ std_normal();
   to_vector(theta_sca_z) ~ std_normal();
   theta_cor_L ~ lkj_corr_cholesky(1);
