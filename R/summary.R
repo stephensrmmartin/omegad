@@ -166,7 +166,7 @@ print.summary.omegad <- function(x, ...) {
 
     .cat_line()
     cat("Diagnostics: \n")
-    # .print_diagnostics(x)
+    .print_diagnostics(x$diagnostics)
     .cat_line()
     cat("Model Description: \n")
     cat(.get_model_description(x), "\n")
@@ -261,4 +261,29 @@ print.summary.omegad <- function(x, ...) {
 .cat_line <- function(n = 40) {
     str <- c(paste0(rep("-", n), collapse=""), "\n")
     cat(str)
+}
+
+.print_diagnostics <- function(diagnostics) {
+    d <- diagnostics
+    rh <- d$rhats[!is.na(d$rhats)]
+    if (sum(rh > 1.1)) {
+        cat("\t Rhats: Failed \n")
+        cat("\t Some Rhats > 1.1. Do not interpret results. The largest 10 are:\n")
+        print(head(sort(rh, decreasing = TRUE), 10))
+    } else {
+        cat("\t Rhats: Passed \n")
+    }
+
+    if (d$div > 0) {
+        cat("\t Divergent Transitions: Failed - ", d$div, "divergent transitions detected. \n")
+    } else {
+        cat("\t Divergent Transitions: Passed \n")
+    }
+
+    if (d$tree.max > 0) {
+        cat("\t Max treedepth hit:", d$tree.max, "\n")
+    }
+    if (any(d$bfmi < .2)) {
+       cat("\t Low E-BFMI detected in chains", which(d$bfmi < .2), "\n") 
+    }
 }
