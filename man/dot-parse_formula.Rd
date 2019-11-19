@@ -4,12 +4,14 @@
 \alias{.parse_formula}
 \title{Parses formula and data into stan_data structure}
 \usage{
-.parse_formula(formula, data, ...)
+.parse_formula(formula, data, rescale = TRUE, ...)
 }
 \arguments{
 \item{formula}{Formula or list of formulas with factor name on LHS, indicators on RHS.}
 
 \item{data}{data.frame containing indicators.}
+
+\item{rescale}{Logical. Whether to standardize indicators.}
 
 \item{...}{Currently not used.}
 }

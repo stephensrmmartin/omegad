@@ -35,7 +35,8 @@ Imports:
     parallel (>= 3.6.0),
     Formula (>= 1.2.0),
     mvtnorm (>= 1.0-1),
-    loo (>= 2.1.0)
+    loo (>= 2.1.0),
+    semTools (>= 0.5-1)
 LinkingTo: 
     BH (>= 1.66.0),
     Rcpp (>= 0.12.0),

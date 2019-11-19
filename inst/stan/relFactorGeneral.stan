@@ -142,7 +142,8 @@ model {
   lambda_loc ~ std_normal();
   lambda_sca ~ std_normal();
   nu_loc ~ std_normal();
-  nu_sca ~ std_normal();
+  //nu_sca ~ std_normal();
+  nu_sca ~ normal(-.5, 1);
   to_vector(theta_z) ~ std_normal();
   theta_cor_L ~ lkj_corr_cholesky(1);
 
