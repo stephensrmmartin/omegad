@@ -27,6 +27,9 @@ If a standardized endogenous variable (Var(theta) = 1), then exogenous predictor
 \eqn{\sigma^2_\epsilon = 1/Var(latent)}
 
 For accuracy, I think we need to compute these over each posterior sample.
+On second thought, maybe not. Scaling the lambdas by E(SD) seemed to work fine (?). Need to doublecheck posterior SDs.
+To do so, should transform theta_sca on each s by the sd at s; compare that to using E(theta_sca[i])/E(SD).
+This actually does work - The Posterior SDs are a touch high, but it's extremely close. Expected values are correct.
 }
 \author{
 Stephen R. Martin

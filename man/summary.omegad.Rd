@@ -4,14 +4,14 @@
 \alias{summary.omegad}
 \title{Summary method for omegad objects.}
 \usage{
-\method{summary}{omegad}(object, prob = 0.95, std.latents = FALSE, ...)
+\method{summary}{omegad}(object, prob = 0.95, std.lat = FALSE, ...)
 }
 \arguments{
 \item{object}{omegad object.}
 
 \item{prob}{Numeric (Default: .95). The amount of probability mass to include within the credible interval. Default values provide a 95\% credible interval.}
 
-\item{std.latents}{Logical (Default: FALSE). Whether to compute loadings with standardized latents (TRUE) or not (FALSE).}
+\item{std.lat}{Logical (Default: FALSE). Whether to compute loadings with standardized latents (TRUE) or not (FALSE).}
 
 \item{...}{Not used.}
 }

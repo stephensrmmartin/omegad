@@ -29,7 +29,7 @@ print.omegad <- function(x, ...) {
 ##' @title Summary method for omegad objects.
 ##' @param object omegad object.
 ##' @param prob Numeric (Default: .95). The amount of probability mass to include within the credible interval. Default values provide a 95\% credible interval.
-##' @param std.latents Logical (Default: FALSE). Whether to compute loadings with standardized latents (TRUE) or not (FALSE).
+##' @param std.lat Logical (Default: FALSE). Whether to compute loadings with standardized latents (TRUE) or not (FALSE).
 ##' @param ... Not used.
 ##' @return List containing "summary", "meta" (meta-data), and "diagnostics" (BFMI, Rhats, n_eff, max treedepth, divergences). "summary" is a list containing summaries (Mean, SD, intervals). Dimensions provided in brackets. J = number of items, N = number of observations, F = number of factors, P = number of exogenous predictors. Items and factors are named according to the model formula:
 ##' \describe{
@@ -48,7 +48,7 @@ print.omegad <- function(x, ...) {
 ##' }
 ##' @author Stephen R. Martin
 ##' @export
-summary.omegad <- function(object, prob = .95, std.latents = FALSE, ...) {
+summary.omegad <- function(object, prob = .95, std.lat = FALSE, ...) {
     probs <- .prob_to_probs(prob)
     F <- object$meta$F
     F_inds <- object$stan_data$F_inds
@@ -73,7 +73,8 @@ summary.omegad <- function(object, prob = .95, std.latents = FALSE, ...) {
         return(out)
     }
 
-    latent_var <- .get_latent_vars(object, prob, SD = FALSE, summary = FALSE)
+    latent_var <- .get_latent_vars(object, prob, SD = TRUE, summary = TRUE)
+
     nu_loc <- .extract_transform(object$fit, "nu_loc")
     nu_sca <- .extract_transform(object$fit, "nu_sca")
     lambda_loc_mat <- .extract_transform(object$fit, "lambda_loc_mat")
@@ -350,6 +351,9 @@ print.summary.omegad <- function(x, ...) {
 ##' \eqn{\sigma^2_\epsilon = 1/Var(latent)}
 ##'
 ##' For accuracy, I think we need to compute these over each posterior sample.
+##' On second thought, maybe not. Scaling the lambdas by E(SD) seemed to work fine (?). Need to doublecheck posterior SDs.
+##' To do so, should transform theta_sca on each s by the sd at s; compare that to using E(theta_sca[i])/E(SD).
+##' This actually does work - The Posterior SDs are a touch high, but it's extremely close. Expected values are correct.
 ##' @title Standardize summary output.
 ##' @param x summary.omegad object.
 ##' @return Summary object (with standardized values).
