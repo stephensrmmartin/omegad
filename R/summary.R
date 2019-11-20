@@ -29,6 +29,7 @@ print.omegad <- function(x, ...) {
 ##' @title Summary method for omegad objects.
 ##' @param object omegad object.
 ##' @param prob Numeric (Default: .95). The amount of probability mass to include within the credible interval. Default values provide a 95\% credible interval.
+##' @param std.latents Logical (Default: FALSE). Whether to compute loadings with standardized latents (TRUE) or not (FALSE).
 ##' @param ... Not used.
 ##' @return List containing "summary", "meta" (meta-data), and "diagnostics" (BFMI, Rhats, n_eff, max treedepth, divergences). "summary" is a list containing summaries (Mean, SD, intervals). Dimensions provided in brackets. J = number of items, N = number of observations, F = number of factors, P = number of exogenous predictors. Items and factors are named according to the model formula:
 ##' \describe{
@@ -47,7 +48,7 @@ print.omegad <- function(x, ...) {
 ##' }
 ##' @author Stephen R. Martin
 ##' @export
-summary.omegad <- function(object, prob = .95, ...) {
+summary.omegad <- function(object, prob = .95, std.latents = FALSE, ...) {
     probs <- .prob_to_probs(prob)
     F <- object$meta$F
     F_inds <- object$stan_data$F_inds
@@ -72,6 +73,7 @@ summary.omegad <- function(object, prob = .95, ...) {
         return(out)
     }
 
+    latent_var <- .get_latent_vars(object, prob, SD = FALSE, summary = FALSE)
     nu_loc <- .extract_transform(object$fit, "nu_loc")
     nu_sca <- .extract_transform(object$fit, "nu_sca")
     lambda_loc_mat <- .extract_transform(object$fit, "lambda_loc_mat")
@@ -137,6 +139,7 @@ summary.omegad <- function(object, prob = .95, ...) {
 
     out$meta <- object$meta
     out$diagnostics <- object$diagnostics
+    out$meta$latent_var <- latent_var
 
     dots <- list(...)
     if (is.null(dots$digits)) {
@@ -286,4 +289,72 @@ print.summary.omegad <- function(x, ...) {
     if (any(d$bfmi < .2)) {
        cat("\t Low E-BFMI detected in chains", which(d$bfmi < .2), "\n") 
     }
+}
+##' Computes latent variances from fitted.
+##'
+##' Standard decomp rules could be followed.
+##' GPs add alpha^2 marginal variance, and the linear functions follow standard path tracing rules.
+##' However, a more straightforward approach is to just directly compute the variance from the fitted scores, which uses fewer assumptions and inherits all uncertainty from the params anyway.
+##' @title Compute latent variances from fitted.
+##' @param object omegad object.
+##' @param prob Probability mass for interval.
+##' @param SD Logical (Default: FALSE). Whether to compute SDs (TRUE) or Vars (FALSE).
+##' @param summary Logical (Default: TRUE). Whether to summarize (TRUE) or return samples (FALSE).
+##' @return Named vector of latent variances.
+##' @author Stephen R. Martin
+##' @keywords internal
+.get_latent_vars <- function(object, prob, SD = FALSE, summary = TRUE) {
+    probs <- .prob_to_probs(prob)
+    fnames <- unlist(object$meta$fnames$factor)
+    fit <- fitted(object, summary = FALSE)
+    theta_loc <- fit$theta_loc
+    theta_sca <- fit$theta_sca
+    if(SD) {
+        f <- sd
+    } else {
+        f <- var
+    }
+    theta_loc_vars <- t(apply(theta_loc, c(2,3), f))
+    theta_sca_vars <- t(apply(theta_sca, c(2,3), f))
+    theta_vars <- cbind(theta_loc_vars, theta_sca_vars)
+    colnames(theta_vars) <- c(fnames, paste0(fnames,"_Error"))
+    out <- theta_vars
+    if (!summary) {
+        return(out)
+    }
+
+    out <- apply(theta_vars, 2, function(x) {
+        M <- mean(x)
+        S <- sd(x)
+        ci <- quantile(x, probs)
+        L <- ci[1]
+        U <- ci[2]
+        out <- c(M, S, L, U)
+        names(out) <- c("Mean","SD",paste0("Q",probs*100))
+        return(out)
+    })
+    out <- t(out)
+    return(out)
+}
+
+##' Recompute parameter outputs as standardized values.
+##'
+##' Loadings and intercepts can be recomputed assuming standardized values via linear transformations.
+##' For loadings:
+##' \eqn{\beta_{a}SD_a = \beta_{b}SD_b}
+##' \eqn{\beta_{un}SD_{un} = \beta_{st}}
+##' \eqn{\beta_{0c} = \beta_{0} + \beta_1\bar x}
+##' \eqn{\Lambda^c = D\Lambda}
+##' If a standardized endogenous variable (Var(theta) = 1), then exogenous predictors have:
+##' \eqn{\beta_{st} = \beta_{un}/SD_{latent}}
+##' \eqn{\sigma^2_\epsilon = 1/Var(latent)}
+##'
+##' For accuracy, I think we need to compute these over each posterior sample.
+##' @title Standardize summary output.
+##' @param x summary.omegad object.
+##' @return Summary object (with standardized values).
+##' @author Stephen R. Martin
+##' @keywords internal
+.standardize_output <- function(x) {
+    
 }
