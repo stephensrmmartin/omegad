@@ -21,6 +21,7 @@ For loadings:
 \eqn{\beta_{a}SD_a = \beta_{b}SD_b}
 \eqn{\beta_{un}SD_{un} = \beta_{st}}
 \eqn{\beta_{0c} = \beta_{0} + \beta_1\bar x}
+\eqn{\nu_c = \nu + \alpha\Lambda}
 \eqn{\Lambda^c = D\Lambda}
 If a standardized endogenous variable (Var(theta) = 1), then exogenous predictors have:
 \eqn{\beta_{st} = \beta_{un}/SD_{latent}}
