@@ -29,7 +29,7 @@ print.omegad <- function(x, ...) {
 ##' @title Summary method for omegad objects.
 ##' @param object omegad object.
 ##' @param prob Numeric (Default: .95). The amount of probability mass to include within the credible interval. Default values provide a 95\% credible interval.
-##' @param std.lat Logical (Default: FALSE). Whether to compute loadings with standardized latents (TRUE) or not (FALSE).
+##' @param std.lv Logical (Default: FALSE). Whether to compute loadings with standardized latents (TRUE) or not (FALSE).
 ##' @param ... Not used.
 ##' @return List containing "summary", "meta" (meta-data), and "diagnostics" (BFMI, Rhats, n_eff, max treedepth, divergences). "summary" is a list containing summaries (Mean, SD, intervals). Dimensions provided in brackets. J = number of items, N = number of observations, F = number of factors, P = number of exogenous predictors. Items and factors are named according to the model formula:
 ##' \describe{
@@ -48,7 +48,7 @@ print.omegad <- function(x, ...) {
 ##' }
 ##' @author Stephen R. Martin
 ##' @export
-summary.omegad <- function(object, prob = .95, std.lat = FALSE, ...) {
+summary.omegad <- function(object, prob = .95, std.lv = TRUE, ...) {
     probs <- .prob_to_probs(prob)
     F <- object$meta$F
     F_inds <- object$stan_data$F_inds
@@ -81,7 +81,7 @@ summary.omegad <- function(object, prob = .95, std.lat = FALSE, ...) {
     lambda_loc_mat <- .extract_transform(object$fit, "lambda_loc_mat")
     lambda_sca_mat <- .extract_transform(object$fit, "lambda_sca_mat")
 
-    if (std.lat) {
+    if (std.lv) {
         for (s in 1:nsamples(object)) {
             nu_loc[, s] <- nu_loc[, s] + t(latent_mean[s, 1:F, drop=FALSE] %*% .array_extract(lambda_loc_mat, s))
             nu_sca[, s] <- nu_sca[, s] + t(latent_mean[s, (F+1):(F*2), drop=FALSE] %*% .array_extract(lambda_sca_mat, s))
