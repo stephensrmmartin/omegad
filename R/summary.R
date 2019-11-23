@@ -29,6 +29,7 @@ print.omegad <- function(x, ...) {
 ##' @title Summary method for omegad objects.
 ##' @param object omegad object.
 ##' @param prob Numeric (Default: .95). The amount of probability mass to include within the credible interval. Default values provide a 95\% credible interval.
+##' @param std.lv Logical (Default: FALSE). Whether to compute loadings with standardized latents (TRUE) or not (FALSE).
 ##' @param ... Not used.
 ##' @return List containing "summary", "meta" (meta-data), and "diagnostics" (BFMI, Rhats, n_eff, max treedepth, divergences). "summary" is a list containing summaries (Mean, SD, intervals). Dimensions provided in brackets. J = number of items, N = number of observations, F = number of factors, P = number of exogenous predictors. Items and factors are named according to the model formula:
 ##' \describe{
@@ -47,7 +48,7 @@ print.omegad <- function(x, ...) {
 ##' }
 ##' @author Stephen R. Martin
 ##' @export
-summary.omegad <- function(object, prob = .95, ...) {
+summary.omegad <- function(object, prob = .95, std.lv = TRUE, ...) {
     probs <- .prob_to_probs(prob)
     F <- object$meta$F
     F_inds <- object$stan_data$F_inds
@@ -72,14 +73,29 @@ summary.omegad <- function(object, prob = .95, ...) {
         return(out)
     }
 
+    latent_sd <- .get_latent_vars(object, prob, SD = TRUE, summary = FALSE)
+    latent_mean <- .get_latent_means(object, prob, summary = FALSE)
+
     nu_loc <- .extract_transform(object$fit, "nu_loc")
     nu_sca <- .extract_transform(object$fit, "nu_sca")
     lambda_loc_mat <- .extract_transform(object$fit, "lambda_loc_mat")
     lambda_sca_mat <- .extract_transform(object$fit, "lambda_sca_mat")
 
+    if (std.lv) {
+        for (s in 1:nsamples(object)) {
+            ## nu_loc[, s] <- nu_loc[, s] + t(latent_mean[s, 1:F, drop=FALSE] %*% .array_extract(lambda_loc_mat, s))
+            ## nu_sca[, s] <- nu_sca[, s] + t(latent_mean[s, (F+1):(F*2), drop=FALSE] %*% .array_extract(lambda_sca_mat, s))
+            for (f in 1:F) {
+                lambda_loc_mat[f, , s] <- lambda_loc_mat[f, , s] * latent_sd[s, f]
+                lambda_sca_mat[f, , s] <- lambda_sca_mat[f, , s] * latent_sd[s, (F + f)]
+            }
+        }
+    }
+
     nu_loc_sum <- aperm(apply(nu_loc, 1, .summary), c(2,1))
     nu_sca_sum <- aperm(apply(nu_sca, 1, .summary), c(2,1))
     dimnames(nu_loc_sum)[[1]] <- dimnames(nu_sca_sum)[[1]] <- inames.all
+
 
     lambda_loc_mat_sum <- aperm(apply(lambda_loc_mat, c(1,2), .summary), c(3,1,2))
     lambda_sca_mat_sum <- aperm(apply(lambda_sca_mat, c(1,2), .summary), c(3,1,2))
@@ -97,6 +113,13 @@ summary.omegad <- function(object, prob = .95, ...) {
         gp_alpha <- .extract_transform(object$fit, "gp_alpha")
         gp_rho <- .extract_transform(object$fit, "gp_rho")
 
+        if (std.lv) {
+            for(s in seq_len(nsamples(object))) {
+                gp_linear[, s] <- gp_linear[, s] / latent_sd[s, (F+1):(2*F)]
+                gp_alpha[, s] <- gp_alpha[, s] / latent_sd[s, (F+1):(2*F)]
+            }
+        }
+
         gp_linear_sum <- aperm(apply(gp_linear, 1, .summary), c(2, 1))
         gp_alpha_sum <- aperm(apply(gp_alpha, 1, .summary), c(2, 1))
         gp_rho_sum <- aperm(apply(gp_rho, 1, .summary), c(2, 1))
@@ -111,6 +134,15 @@ summary.omegad <- function(object, prob = .95, ...) {
             exo_gp_alpha <- .extract_transform(object$fit, "exo_gp_alpha")
             exo_gp_rho <- .extract_transform(object$fit, "exo_gp_rho")
 
+            if (std.lv) {
+                for(s in seq_len(nsamples(object))) {
+                    for (f in seq_len(F)) {
+                        exo_gp_linear[, f, s] <- exo_gp_linear[, f, s]/latent_sd[s, (F + f)]
+                        exo_gp_alpha[, f, s] <- exo_gp_alpha[, f, s]/latent_sd[s, (F + f)]
+                    }
+                }
+            }
+
             exo_gp_linear_sum <- aperm(apply(exo_gp_linear, c(1, 2), .summary), c(2, 1, 3))
             exo_gp_alpha_sum <- aperm(apply(exo_gp_alpha, c(1, 2), .summary), c(2, 1, 3))
             exo_gp_rho_sum <- aperm(apply(exo_gp_rho, c(1, 2), .summary), c(2, 1, 3))
@@ -124,6 +156,13 @@ summary.omegad <- function(object, prob = .95, ...) {
 
        if (exo) {
            exo_beta <- .extract_transform(object$fit, "exo_beta")
+           if (std.lv) {
+               for (s in seq_len(nsamples(object))) {
+                   for (f in seq_len(F)) {
+                       exo_beta[, f, s] <- exo_beta[, f, s] / latent_sd[s, (F + f)]
+                   }
+               }
+           }
            exo_beta_sum <- aperm(apply(exo_beta, c(1, 2), .summary), c(2, 1, 3))
            dimnames(exo_beta_sum)[[3]] <- paste0(fnames, "_Error")
            dimnames(exo_beta_sum)[[1]] <- enames$terms
@@ -136,6 +175,7 @@ summary.omegad <- function(object, prob = .95, ...) {
     out <- list(summary = out)
 
     out$meta <- object$meta
+    out$meta$std.lv <- std.lv
     out$diagnostics <- object$diagnostics
 
     dots <- list(...)
@@ -286,4 +326,79 @@ print.summary.omegad <- function(x, ...) {
     if (any(d$bfmi < .2)) {
        cat("\t Low E-BFMI detected in chains", which(d$bfmi < .2), "\n") 
     }
+}
+##' Computes latent variances from fitted.
+##'
+##' Standard decomp rules could be followed.
+##' GPs add alpha^2 marginal variance, and the linear functions follow standard path tracing rules.
+##' However, a more straightforward approach is to just directly compute the variance from the fitted scores, which uses fewer assumptions and inherits all uncertainty from the params anyway.
+##' @title Compute latent variances from fitted.
+##' @param object omegad object.
+##' @param prob Probability mass for interval.
+##' @param SD Logical (Default: FALSE). Whether to compute SDs (TRUE) or Vars (FALSE).
+##' @param summary Logical (Default: TRUE). Whether to summarize (TRUE) or return samples (FALSE).
+##' @return Named vector of latent variances.
+##' @author Stephen R. Martin
+##' @keywords internal
+.get_latent_vars <- function(object, prob, SD = FALSE, summary = TRUE) {
+    probs <- .prob_to_probs(prob)
+    fnames <- unlist(object$meta$fnames$factor)
+    fit <- fitted(object, summary = FALSE)
+    theta_loc <- fit$theta_loc
+    theta_sca <- fit$theta_sca
+    if(SD) {
+        f <- sd
+    } else {
+        f <- var
+    }
+    theta_loc_vars <- t(apply(theta_loc, c(2,3), f))
+    theta_sca_vars <- t(apply(theta_sca, c(2,3), f))
+    theta_vars <- cbind(theta_loc_vars, theta_sca_vars)
+    colnames(theta_vars) <- c(fnames, paste0(fnames,"_Error"))
+    out <- theta_vars
+    if (!summary) {
+        return(out)
+    }
+
+    out <- apply(theta_vars, 2, function(x) {
+        M <- mean(x)
+        S <- sd(x)
+        ci <- quantile(x, probs)
+        L <- ci[1]
+        U <- ci[2]
+        out <- c(M, S, L, U)
+        names(out) <- c("Mean","SD",paste0("Q",probs*100))
+        return(out)
+    })
+    out <- t(out)
+    return(out)
+}
+
+.get_latent_means <- function(object, prob, summary = TRUE) {
+    probs <- .prob_to_probs(prob)
+    fnames <- unlist(object$meta$fnames$factor)
+    fit <- fitted(object, summary = FALSE)
+    theta_loc <- fit$theta_loc
+    theta_sca <- fit$theta_sca
+    theta_loc_mean <- t(apply(theta_loc, c(2,3), mean))
+    theta_sca_mean <- t(apply(theta_sca, c(2,3), mean))
+    theta_mean <- cbind(theta_loc_mean, theta_sca_mean)
+    colnames(theta_mean) <- c(fnames, paste0(fnames,"_Error"))
+    out <- theta_mean
+    if (!summary) {
+        return(out)
+    }
+
+    out <- apply(theta_mean, 2, function(x) {
+        M <- mean(x)
+        S <- sd(x)
+        ci <- quantile(x, probs)
+        L <- ci[1]
+        U <- ci[2]
+        out <- c(M, S, L, U)
+        names(out) <- c("Mean","SD",paste0("Q",probs*100))
+        return(out)
+    })
+    out <- t(out)
+    return(out)
 }
