@@ -113,6 +113,13 @@ summary.omegad <- function(object, prob = .95, std.lv = TRUE, ...) {
         gp_alpha <- .extract_transform(object$fit, "gp_alpha")
         gp_rho <- .extract_transform(object$fit, "gp_rho")
 
+        if (std.lv) {
+            for(s in seq_len(nsamples(object))) {
+                gp_linear[, s] <- gp_linear[, s] / latent_sd[s, (F+1):(2*F)]
+                gp_alpha[, s] <- gp_alpha[, s] / latent_sd[s, (F+1):(2*F)]
+            }
+        }
+
         gp_linear_sum <- aperm(apply(gp_linear, 1, .summary), c(2, 1))
         gp_alpha_sum <- aperm(apply(gp_alpha, 1, .summary), c(2, 1))
         gp_rho_sum <- aperm(apply(gp_rho, 1, .summary), c(2, 1))
@@ -127,6 +134,15 @@ summary.omegad <- function(object, prob = .95, std.lv = TRUE, ...) {
             exo_gp_alpha <- .extract_transform(object$fit, "exo_gp_alpha")
             exo_gp_rho <- .extract_transform(object$fit, "exo_gp_rho")
 
+            if (std.lv) {
+                for(s in seq_len(nsamples(object))) {
+                    for (f in seq_len(F)) {
+                        exo_gp_linear[, f, s] <- exo_gp_linear[, f, s]/latent_sd[s, (F + f)]
+                        exo_gp_alpha[, f, s] <- exo_gp_alpha[, f, s]/latent_sd[s, (F + f)]
+                    }
+                }
+            }
+
             exo_gp_linear_sum <- aperm(apply(exo_gp_linear, c(1, 2), .summary), c(2, 1, 3))
             exo_gp_alpha_sum <- aperm(apply(exo_gp_alpha, c(1, 2), .summary), c(2, 1, 3))
             exo_gp_rho_sum <- aperm(apply(exo_gp_rho, c(1, 2), .summary), c(2, 1, 3))
@@ -140,6 +156,13 @@ summary.omegad <- function(object, prob = .95, std.lv = TRUE, ...) {
 
        if (exo) {
            exo_beta <- .extract_transform(object$fit, "exo_beta")
+           if (std.lv) {
+               for (s in seq_len(nsamples(object))) {
+                   for (f in seq_len(F)) {
+                       exo_beta[, f, s] <- exo_beta[, f, s] / latent_sd[s, (F + f)]
+                   }
+               }
+           }
            exo_beta_sum <- aperm(apply(exo_beta, c(1, 2), .summary), c(2, 1, 3))
            dimnames(exo_beta_sum)[[3]] <- paste0(fnames, "_Error")
            dimnames(exo_beta_sum)[[1]] <- enames$terms
@@ -152,6 +175,7 @@ summary.omegad <- function(object, prob = .95, std.lv = TRUE, ...) {
     out <- list(summary = out)
 
     out$meta <- object$meta
+    out$meta$std.lv <- std.lv
     out$diagnostics <- object$diagnostics
 
     dots <- list(...)
