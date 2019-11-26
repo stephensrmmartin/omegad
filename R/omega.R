@@ -83,10 +83,11 @@ omegad <- function(formula, data, ...) {
             "nu_sca",
             "theta_cor",
             "theta",
-            "omega1",
-            "omega2",
+            ## "omega1",
+            ## "omega2",
             "omega1_expected",
-            "omega2_expected")
+            "omega2_expected",
+            "omega_total_expected")
   if (gp) {
     d$stan_data$M <- M
     model <- stanmodels$relFactorGeneralGPBP
