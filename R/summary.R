@@ -83,8 +83,8 @@ summary.omegad <- function(object, prob = .95, std.lv = TRUE, ...) {
 
     if (std.lv) {
         for (s in 1:nsamples(object)) {
-            ## nu_loc[, s] <- nu_loc[, s] + t(latent_mean[s, 1:F, drop=FALSE] %*% .array_extract(lambda_loc_mat, s))
-            ## nu_sca[, s] <- nu_sca[, s] + t(latent_mean[s, (F+1):(F*2), drop=FALSE] %*% .array_extract(lambda_sca_mat, s))
+            nu_loc[, s] <- nu_loc[, s] + t(latent_mean[s, 1:F, drop=FALSE] %*% .array_extract(lambda_loc_mat, s))
+            nu_sca[, s] <- nu_sca[, s] + t(latent_mean[s, (F+1):(F*2), drop=FALSE] %*% .array_extract(lambda_sca_mat, s))
             for (f in 1:F) {
                 lambda_loc_mat[f, , s] <- lambda_loc_mat[f, , s] * latent_sd[s, f]
                 lambda_sca_mat[f, , s] <- lambda_sca_mat[f, , s] * latent_sd[s, (F + f)]
