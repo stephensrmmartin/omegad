@@ -17,7 +17,7 @@ omegad(formula, data, ...)
 
 \item{M}{Integer (Default: 10). Only applicable if \code{gp = TRUE}. The number of basis functions to use in the approximate gaussian processes. Larger M provides a better approximation at a greater computational cost.}
 
-\item{rescale}{Logical (Default: TRUE). Whether to standardize the indicators and numeric exogenous predictors. The implemented priors assume approximately standardized indicators.}
+\item{std.ov}{Logical (Default: TRUE). Whether to standardize the indicators predictors. The implemented priors assume approximately standardized indicators.}
 }
 \value{
 omegad object.

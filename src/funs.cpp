@@ -4,7 +4,7 @@
 
 #include <stan/model/standalone_functions_header.hpp>
 
-namespace user_ef86559aa405631b00029e0fe1ad7bc8 { 
+namespace user_72dbfbbd1d461c226daf45f68488c9d4 { 
 using std::istream;
 using std::string;
 using std::stringstream;
@@ -18,7 +18,7 @@ typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> matrix_d;
 stan::io::program_reader prog_reader__() {
     stan::io::program_reader reader;
     reader.add_event(0, 0, "start", "unknown file name");
-    reader.add_event(278, 276, "end", "unknown file name");
+    reader.add_event(292, 290, "end", "unknown file name");
     return reader;
 }
 
@@ -727,6 +727,103 @@ struct omega_two_functor__ {
     }
 };
 
+template <typename T0__, typename T1__, typename T2__>
+Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__>::type, Eigen::Dynamic, Eigen::Dynamic>
+omega_total(const Eigen::Matrix<T0__, Eigen::Dynamic, Eigen::Dynamic>& lambda_loc_mat,
+                const Eigen::Matrix<T1__, Eigen::Dynamic, Eigen::Dynamic>& theta_cor_L,
+                const Eigen::Matrix<T2__, Eigen::Dynamic, Eigen::Dynamic>& shat, std::ostream* pstream__) {
+    typedef typename boost::math::tools::promote_args<T0__, T1__, T2__>::type local_scalar_t__;
+    typedef local_scalar_t__ fun_return_scalar_t__;
+    const static bool propto__ = true;
+    (void) propto__;
+        local_scalar_t__ DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+    int current_statement_begin__ = -1;
+    try {
+        {
+        current_statement_begin__ = 120;
+        int N(0);
+        (void) N;  // dummy to suppress unused var warning
+        stan::math::fill(N, std::numeric_limits<int>::min());
+        stan::math::assign(N,rows(shat));
+
+        current_statement_begin__ = 121;
+        int F(0);
+        (void) F;  // dummy to suppress unused var warning
+        stan::math::fill(F, std::numeric_limits<int>::min());
+        stan::math::assign(F,rows(lambda_loc_mat));
+
+        current_statement_begin__ = 122;
+        int J(0);
+        (void) J;  // dummy to suppress unused var warning
+        stan::math::fill(J, std::numeric_limits<int>::min());
+        stan::math::assign(J,cols(shat));
+
+        current_statement_begin__ = 123;
+        validate_non_negative_index("vhat", "N", N);
+        validate_non_negative_index("vhat", "J", J);
+        Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> vhat(N, J);
+        stan::math::initialize(vhat, DUMMY_VAR__);
+        stan::math::fill(vhat, DUMMY_VAR__);
+        stan::math::assign(vhat,elt_multiply(shat, shat));
+
+        current_statement_begin__ = 124;
+        validate_non_negative_index("theta_loc_cov", "F", F);
+        validate_non_negative_index("theta_loc_cov", "F", F);
+        Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> theta_loc_cov(F, F);
+        stan::math::initialize(theta_loc_cov, DUMMY_VAR__);
+        stan::math::fill(theta_loc_cov, DUMMY_VAR__);
+        stan::math::assign(theta_loc_cov,multiply_lower_tri_self_transpose(theta_cor_L));
+
+        current_statement_begin__ = 125;
+        validate_non_negative_index("one", "J", J);
+        Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> one(J);
+        stan::math::initialize(one, DUMMY_VAR__);
+        stan::math::fill(one, DUMMY_VAR__);
+        stan::math::assign(one,ones(J, pstream__));
+
+        current_statement_begin__ = 126;
+        local_scalar_t__ numerator(DUMMY_VAR__);
+        (void) numerator;  // dummy to suppress unused var warning
+        stan::math::initialize(numerator, DUMMY_VAR__);
+        stan::math::fill(numerator, DUMMY_VAR__);
+        stan::math::assign(numerator,multiply(multiply(multiply(multiply(transpose(one), transpose(lambda_loc_mat)), theta_loc_cov), lambda_loc_mat), one));
+
+        current_statement_begin__ = 127;
+        validate_non_negative_index("omega_total", "N", N);
+        validate_non_negative_index("omega_total", "1", 1);
+        Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> omega_total(N, 1);
+        stan::math::initialize(omega_total, DUMMY_VAR__);
+        stan::math::fill(omega_total, DUMMY_VAR__);
+
+
+        current_statement_begin__ = 128;
+        stan::model::assign(omega_total, 
+                    stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
+                    elt_divide(numerator, add(numerator, multiply(vhat, one))), 
+                    "assigning variable omega_total");
+        current_statement_begin__ = 129;
+        return stan::math::promote_scalar<fun_return_scalar_t__>(omega_total);
+        }
+    } catch (const std::exception& e) {
+        stan::lang::rethrow_located(e, current_statement_begin__, prog_reader__());
+        // Next line prevents compiler griping about no return
+        throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+    }
+}
+
+
+struct omega_total_functor__ {
+    template <typename T0__, typename T1__, typename T2__>
+        Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__>::type, Eigen::Dynamic, Eigen::Dynamic>
+    operator()(const Eigen::Matrix<T0__, Eigen::Dynamic, Eigen::Dynamic>& lambda_loc_mat,
+                const Eigen::Matrix<T1__, Eigen::Dynamic, Eigen::Dynamic>& theta_cor_L,
+                const Eigen::Matrix<T2__, Eigen::Dynamic, Eigen::Dynamic>& shat, std::ostream* pstream__) const {
+        return omega_total(lambda_loc_mat, theta_cor_L, shat, pstream__);
+    }
+};
+
  } 
 // [[Rcpp::depends(rstan)]]
 // [[Rcpp::export]]
@@ -734,7 +831,7 @@ Eigen::Matrix<double, Eigen::Dynamic, 1>
 lambdas(const double& L,
             const int& M){
   return 
-user_ef86559aa405631b00029e0fe1ad7bc8::lambdas<double>(L, M, &Rcpp::Rcout);
+user_72dbfbbd1d461c226daf45f68488c9d4::lambdas<double>(L, M, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -744,7 +841,7 @@ basis_phi(const double& L,
               const int& m,
               const Eigen::Matrix<double, Eigen::Dynamic, 1>& x){
   return 
-user_ef86559aa405631b00029e0fe1ad7bc8::basis_phi<double, double>(L, m, x, &Rcpp::Rcout);
+user_72dbfbbd1d461c226daf45f68488c9d4::basis_phi<double, double>(L, m, x, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -754,7 +851,7 @@ basis_phis(const double& L,
                const int& M,
                const Eigen::Matrix<double, Eigen::Dynamic, 1>& x){
   return 
-user_ef86559aa405631b00029e0fe1ad7bc8::basis_phis<double, double>(L, M, x, &Rcpp::Rcout);
+user_72dbfbbd1d461c226daf45f68488c9d4::basis_phis<double, double>(L, M, x, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -764,7 +861,7 @@ spd(const double& alpha,
         const double& rho,
         const double& lambda){
   return 
-user_ef86559aa405631b00029e0fe1ad7bc8::spd<double, double, double>(alpha, rho, lambda, &Rcpp::Rcout);
+user_72dbfbbd1d461c226daf45f68488c9d4::spd<double, double, double>(alpha, rho, lambda, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -774,7 +871,7 @@ spds(const double& alpha,
          const double& rho,
          const Eigen::Matrix<double, Eigen::Dynamic, 1>& lambdas){
   return 
-user_ef86559aa405631b00029e0fe1ad7bc8::spds<double, double, double>(alpha, rho, lambdas, &Rcpp::Rcout);
+user_72dbfbbd1d461c226daf45f68488c9d4::spds<double, double, double>(alpha, rho, lambdas, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -785,7 +882,7 @@ spd_gp(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& x_phi,
            const double& rho,
            const Eigen::Matrix<double, Eigen::Dynamic, 1>& lambdas){
   return 
-user_ef86559aa405631b00029e0fe1ad7bc8::spd_gp<double, double, double, double>(x_phi, alpha, rho, lambdas, &Rcpp::Rcout);
+user_72dbfbbd1d461c226daf45f68488c9d4::spd_gp<double, double, double, double>(x_phi, alpha, rho, lambdas, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -797,7 +894,7 @@ spd_gp_fast(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& x_phi,
                 const Eigen::Matrix<double, Eigen::Dynamic, 1>& lambdas,
                 const Eigen::Matrix<double, Eigen::Dynamic, 1>& gp_z){
   return 
-user_ef86559aa405631b00029e0fe1ad7bc8::spd_gp_fast<double, double, double, double, double>(x_phi, alpha, rho, lambdas, gp_z, &Rcpp::Rcout);
+user_72dbfbbd1d461c226daf45f68488c9d4::spd_gp_fast<double, double, double, double, double>(x_phi, alpha, rho, lambdas, gp_z, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -808,7 +905,7 @@ omega_one(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& lambda_lo
               const std::vector<int>& F_inds_num,
               const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& shat){
   return 
-user_ef86559aa405631b00029e0fe1ad7bc8::omega_one<double, double>(lambda_loc_mat, F_inds, F_inds_num, shat, &Rcpp::Rcout);
+user_72dbfbbd1d461c226daf45f68488c9d4::omega_one<double, double>(lambda_loc_mat, F_inds, F_inds_num, shat, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -817,7 +914,7 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>
 loadings_to_ones(const std::vector<std::vector<int> >& F_inds,
                      const std::vector<int>& F_inds_num){
   return 
-user_ef86559aa405631b00029e0fe1ad7bc8::loadings_to_ones(F_inds, F_inds_num, &Rcpp::Rcout);
+user_72dbfbbd1d461c226daf45f68488c9d4::loadings_to_ones(F_inds, F_inds_num, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -825,7 +922,7 @@ user_ef86559aa405631b00029e0fe1ad7bc8::loadings_to_ones(F_inds, F_inds_num, &Rcp
 Eigen::Matrix<double, Eigen::Dynamic, 1>
 ones(const int& num){
   return 
-user_ef86559aa405631b00029e0fe1ad7bc8::ones(num, &Rcpp::Rcout);
+user_72dbfbbd1d461c226daf45f68488c9d4::ones(num, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -837,7 +934,17 @@ omega_two(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& lambda_lo
               const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& theta_cor_L,
               const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& shat){
   return 
-user_ef86559aa405631b00029e0fe1ad7bc8::omega_two<double, double, double>(lambda_loc_mat, F_inds, F_inds_num, theta_cor_L, shat, &Rcpp::Rcout);
+user_72dbfbbd1d461c226daf45f68488c9d4::omega_two<double, double, double>(lambda_loc_mat, F_inds, F_inds_num, theta_cor_L, shat, &Rcpp::Rcout);
+}
+
+// [[Rcpp::depends(rstan)]]
+// [[Rcpp::export]]
+Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>
+omega_total(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& lambda_loc_mat,
+                const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& theta_cor_L,
+                const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& shat){
+  return 
+user_72dbfbbd1d461c226daf45f68488c9d4::omega_total<double, double, double>(lambda_loc_mat, theta_cor_L, shat, &Rcpp::Rcout);
 }
 
 
