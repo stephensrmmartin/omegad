@@ -28,7 +28,7 @@
 #' @param data Data frame containing indicators as columns.
 #' @param gp Logical (Default: FALSE). Whether to fit an approximate gaussian process model between latent factors (and exogenous variables) and their corresponding Error factors.
 #' @param M Integer (Default: 10). Only applicable if \code{gp = TRUE}. The number of basis functions to use in the approximate gaussian processes. Larger M provides a better approximation at a greater computational cost.
-#' @param rescale Logical (Default: TRUE). Whether to standardize the indicators and numeric exogenous predictors. The implemented priors assume approximately standardized indicators.
+#' @param std.ov Logical (Default: TRUE). Whether to standardize the indicators predictors. The implemented priors assume approximately standardized indicators.
 #' @param ... Options passed onto \code{\link[rstan]{sampling}}.
 #'
 #' @importFrom rstan sampling
@@ -51,11 +51,11 @@ omegad <- function(formula, data, ...) {
       M <- dots$M
       dots$M <- NULL
   }
-  if (is.null(dots$rescale)) {
-      rescale <- TRUE
+  if (is.null(dots$std.ov)) {
+      std.ov <- TRUE
   } else {
-      rescale <- dots$rescale
-      dots$rescale <- NULL
+      std.ov <- dots$std.ov
+      dots$std.ov <- NULL
   }
   if (is.null(dots$cores)) {
     dots$cores <- getOption("mc.cores")
@@ -76,7 +76,7 @@ omegad <- function(formula, data, ...) {
       dots$init <- 0
   }
 
-  d <- .parse_formula(formula, data, rescale)
+  d <- .parse_formula(formula, data, std.ov)
   pars <- c("lambda_loc_mat",
             "lambda_sca_mat",
             "nu_loc",
@@ -116,7 +116,9 @@ omegad <- function(formula, data, ...) {
                F = d$stan_data$F,
                fnames = d$fnames,
                enames = d$enames,
-               modelForms = d$modelForms
+               modelForms = d$modelForms,
+               std.ov = std.ov,
+               scaling = d$scaling
                )
   if (!is.list(formula)) {
       formula <- list(formula)
@@ -136,14 +138,14 @@ omegad <- function(formula, data, ...) {
 #'
 #' @param formula Formula or list of formulas with factor name on LHS, indicators on RHS.
 #' @param data data.frame containing indicators.
-#' @param rescale Logical. Whether to standardize indicators.
+#' @param std.ov Logical. Whether to standardize indicators.
 #' @param ... Currently not used.
 #'
 #' @import Formula
 #' @return stan_data list.
 #' @keywords internal
 #'
-.parse_formula <- function(formula, data, rescale = TRUE, ...) {
+.parse_formula <- function(formula, data, std.ov = TRUE, ...) {
   if (!is.list(formula)) {
     forms <- list(formula)
   } else {
@@ -183,10 +185,10 @@ omegad <- function(formula, data, ...) {
   }
 
   # Rescale indicators and non-factor exogenous variables?
-  if (rescale) {
-      which.nonfactor <- sapply(mf, is.numeric)
-      mf[,which.nonfactor] <- scale(mf[,which.nonfactor])
-  }
+  ## if (std.ov) {
+  ##     which.nonfactor <- sapply(mf, is.numeric)
+  ##     mf[,which.nonfactor] <- scale(mf[,which.nonfactor])
+  ## }
 
   # Extract out Exogenous variables
   whichExoForm <- which(fnames$factor == "Error")
@@ -208,6 +210,11 @@ omegad <- function(formula, data, ...) {
   form.rhs <- as.Formula(paste0("~ ", paste0(unique(form.rhs), collapse = " + ")))
   mm <- model.matrix(form.rhs, mf)[, -1] ## No intercept
 
+  scaling <- list(mean = apply(mm, 2, mean), sd = apply(mm, 2, sd))
+  if (std.ov) {
+      mm <- scale(mm)
+  }
+
   # Loading indicator matrix
   F_inds <- .get_loadings_matrix(forms, mm)
 
@@ -226,7 +233,9 @@ omegad <- function(formula, data, ...) {
               exo = exo,
               enames = enames,
               fnames = fnames,
-              modelForms = modelForms)
+              modelForms = modelForms,
+              scaling = scaling)
+  return(out)
 }
 
 #' Takes formula and returns names

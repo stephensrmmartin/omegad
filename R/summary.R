@@ -30,6 +30,7 @@ print.omegad <- function(x, ...) {
 ##' @param object omegad object.
 ##' @param prob Numeric (Default: .95). The amount of probability mass to include within the credible interval. Default values provide a 95\% credible interval.
 ##' @param std.lv Logical (Default: FALSE). Whether to compute loadings with standardized latents (TRUE) or not (FALSE).
+##' @param unstd.ov Logical (Default: TRUE). If indicators were standardized (std.ov = TRUE), whether to rescale the loadings and intercepts to match the unstandardized data. Only applicable when \code{std.ov = TRUE} was specified in \code{omegad} call.
 ##' @param ... Not used.
 ##' @return List containing "summary", "meta" (meta-data), and "diagnostics" (BFMI, Rhats, n_eff, max treedepth, divergences). "summary" is a list containing summaries (Mean, SD, intervals). Dimensions provided in brackets. J = number of items, N = number of observations, F = number of factors, P = number of exogenous predictors. Items and factors are named according to the model formula:
 ##' \describe{
@@ -48,7 +49,7 @@ print.omegad <- function(x, ...) {
 ##' }
 ##' @author Stephen R. Martin
 ##' @export
-summary.omegad <- function(object, prob = .95, std.lv = TRUE, ...) {
+summary.omegad <- function(object, prob = .95, std.lv = TRUE, unstd.ov = TRUE, ...) {
     probs <- .prob_to_probs(prob)
     F <- object$meta$F
     F_inds <- object$stan_data$F_inds
@@ -62,6 +63,12 @@ summary.omegad <- function(object, prob = .95, std.lv = TRUE, ...) {
     exo <- object$meta$exo
     gp <- object$meta$gp
 
+    if (object$meta$std.ov & unstd.ov) {
+        rescale <- TRUE
+    } else {
+        rescale <- FALSE
+    }
+    
     .summary <- function(x) {
         m <- mean(x)
         sd <- sd(x)
@@ -89,6 +96,13 @@ summary.omegad <- function(object, prob = .95, std.lv = TRUE, ...) {
                 lambda_loc_mat[f, , s] <- lambda_loc_mat[f, , s] * latent_sd[s, f]
                 lambda_sca_mat[f, , s] <- lambda_sca_mat[f, , s] * latent_sd[s, (F + f)]
             }
+        }
+    }
+    if (rescale) {
+        for(s in 1:nsamples(object)) {
+            nu_loc[,s] <- nu_loc[,s]*object$meta$scaling$sd + object$meta$scaling$mean
+            lambda_loc_mat[,,s] <- lambda_loc_mat[,,s] * (rep(1, F) %*% t(object$meta$scaling$sd))
+            nu_sca[,s] <- nu_sca[,s] + log(object$meta$scaling$sd)
         }
     }
 
