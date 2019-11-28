@@ -116,6 +116,19 @@ functions {
     return(omega);
   }
 
+  matrix omega_total(matrix lambda_loc_mat, matrix theta_cor_L, matrix shat) {
+    int N = rows(shat);
+    int F = rows(lambda_loc_mat);
+    int J = cols(shat);
+    matrix[N,J] vhat = shat .* shat;
+    matrix[F,F] theta_loc_cov = multiply_lower_tri_self_transpose(theta_cor_L);
+    vector[J] one = ones(J);
+    real numerator = one' * lambda_loc_mat' * theta_loc_cov * lambda_loc_mat * one;
+    matrix[N, 1] omega_total;
+    omega_total[,1]= numerator ./ (numerator + vhat*one);
+    return(omega_total);
+  }
+
 }
 data {
   int N;
@@ -268,10 +281,11 @@ model {
 
 generated quantities {
   //matrix omega_one(matrix lambda_loc_mat,int[,] F_inds, int[] F_inds_num, matrix shat){
-  matrix[N,F] omega1 = omega_one(lambda_loc_mat, F_inds, F_inds_num, shat);
+  // matrix[N,F] omega1 = omega_one(lambda_loc_mat, F_inds, F_inds_num, shat);
   // matrix omega_two(matrix lambda_loc_mat, int[,] F_inds, int[] F_inds_num, matrix theta_cor_L, matrix shat){
-  matrix[N,F] omega2 = omega_two(lambda_loc_mat, F_inds, F_inds_num, theta_cor_L, shat);
+  // matrix[N,F] omega2 = omega_two(lambda_loc_mat, F_inds, F_inds_num, theta_cor_L, shat);
   matrix[1,F] omega1_expected = omega_one(lambda_loc_mat,F_inds,F_inds_num,exp(rep_matrix(nu_sca,1)));
   matrix[1,F] omega2_expected = omega_two(lambda_loc_mat,F_inds,F_inds_num,theta_cor_L,exp(rep_matrix(nu_sca,1)));
+  matrix[1,1] omega_total_expected = omega_total(lambda_loc_mat, theta_cor_L, exp(rep_matrix(nu_sca,1)));
   matrix[F,F] theta_cor = multiply_lower_tri_self_transpose(theta_cor_L);
 }

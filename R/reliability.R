@@ -38,9 +38,10 @@ reliability.lavaan.mi <- function(object, ...) {
 reliability.omegad <- function(object, prob = .95, ...) {
     probs <- .prob_to_probs(prob)
 
-    omgs <- fitted(object, summary = FALSE)[c("omega1","omega2")]
+    omgs <- fitted(object, summary = FALSE)[c("omega1","omega2","omega_total")]
     omg.1.0 <- .extract_transform(object$fit, "omega1_expected")
     omg.2.0 <- .extract_transform(object$fit, "omega2_expected")
+    omg.T.0 <- .extract_transform(object$fit, "omega_total_expected")
 
     .fun <- function(x){
         m <- mean(x)
@@ -66,17 +67,23 @@ reliability.omegad <- function(object, prob = .95, ...) {
 
     omg.1.0.sum <- apply(omg.1.0, 2, .fun)
     omg.2.0.sum <- apply(omg.2.0, 2, .fun)
+    omg.T.0.sum <- apply(omg.T.0, 2, .fun)
     omg.1.0.sum <- t(omg.1.0.sum)
     omg.2.0.sum <- t(omg.2.0.sum)
+    omg.T.0.sum <- t(omg.T.0.sum)
     rownames(omg.1.0.sum) <- rownames(omg.2.0.sum) <- unlist(object$meta$fnames$factor)
+    rownames(omg.T.0.sum) <- "Total"
 
     out <- list(
             omega1_cond = omg.1.0.sum,
             omega2_cond = omg.2.0.sum,
+            omegaT_cond = omg.T.0.sum,
             omega1_exp = omgs.mean[["omega1"]],
             omega2_exp = omgs.mean[["omega2"]],
+            omegaT_exp = omgs.mean[["omega_total"]],
             omega1_sd = omgs.sd[["omega1"]],
-            omega2_sd = omgs.sd[["omega2"]]
+            omega2_sd = omgs.sd[["omega2"]],
+            omegaT_sd = omgs.sd[["omega_total"]]
         )
     class(out) <- "reliability.omegad"
     return(out)
@@ -112,6 +119,21 @@ print.reliability.omegad <- function(x, ...) {
 
     cat("[SD(Omega_i)] \n")
     print(x$omega1_sd)
+    cat("\n")
+
+    cat("Omega Total \n")
+
+    cat("[E(Omega | Error_f = 0)] \n")
+    print(x$omegaT_cond)
+    cat("\n")
+
+    cat("[E(Omega_i)] \n")
+    print(x$omegaT_exp)
+    cat("\n")
+
+    cat("[SD(Omega_i)] \n")
+    print(x$omegaT_sd)
+    cat("\n")
 
     return(invisible(x))
 }

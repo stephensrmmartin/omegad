@@ -4,7 +4,8 @@
 \alias{summary.omegad}
 \title{Summary method for omegad objects.}
 \usage{
-\method{summary}{omegad}(object, prob = 0.95, std.lv = TRUE, ...)
+\method{summary}{omegad}(object, prob = 0.95, std.lv = FALSE,
+  unstd.ov = TRUE, ...)
 }
 \arguments{
 \item{object}{omegad object.}
@@ -12,6 +13,8 @@
 \item{prob}{Numeric (Default: .95). The amount of probability mass to include within the credible interval. Default values provide a 95\% credible interval.}
 
 \item{std.lv}{Logical (Default: FALSE). Whether to compute loadings with standardized latents (TRUE) or not (FALSE).}
+
+\item{unstd.ov}{Logical (Default: TRUE). If indicators were standardized (std.ov = TRUE), whether to rescale the loadings and intercepts to match the unstandardized data. Only applicable when \code{std.ov = TRUE} was specified in \code{omegad} call.}
 
 \item{...}{Not used.}
 }
