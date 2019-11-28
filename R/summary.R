@@ -49,7 +49,7 @@ print.omegad <- function(x, ...) {
 ##' }
 ##' @author Stephen R. Martin
 ##' @export
-summary.omegad <- function(object, prob = .95, std.lv = TRUE, unstd.ov = TRUE, ...) {
+summary.omegad <- function(object, prob = .95, std.lv = FALSE, unstd.ov = TRUE, ...) {
     probs <- .prob_to_probs(prob)
     F <- object$meta$F
     F_inds <- object$stan_data$F_inds
