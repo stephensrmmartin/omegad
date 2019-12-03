@@ -68,7 +68,7 @@ fitted.omegad <- function(object, summary = TRUE, prob = .95, ...) {
         fitOut$omega_total <- fitOut$omega_total[,,1]
     } else {
         fitOut[c("theta_sca","omega1","omega2","theta_loc")] <- lapply(fitOut[c("theta_sca","omega1","omega2","theta_loc")], function(x){
-            dimnames(x)[[2]] <- unlist(object$meta$fnames$factor)
+            colnames(x) <- unlist(object$meta$fnames$factor)
             return(x)
         })
     }

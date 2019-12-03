@@ -52,7 +52,7 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
         predOut$omega_total <- predOut$omega_total[,,1]
     } else {
         predOut[c("theta_sca","omega1","omega2")] <- lapply(predOut[c("theta_sca","omega1","omega2")], function(x) {
-            dimnames(x)[[2]] <- unlist(object$meta$fnames$factor)
+            colnames(x) <- unlist(object$meta$fnames$factor)
             return(x)
         })
         ## predOut <- lapply(predOut, function(x) {
