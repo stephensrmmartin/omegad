@@ -154,6 +154,7 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
     theta_sca <- array(0, dim = c(N, F, nsamples))
     omega1 <- array(0, dim = c(N, F, nsamples))
     omega2 <- array(0, dim = c(N, F, nsamples))
+    omega_total <- array(0, dim = c(N, 1, nsamples))
 
     for (s in 1:nsamples) {
         theta_sca_mvn <- .cond_mvn(theta_loc, rep(0,F*2), .array_extract(theta_cor, s))
@@ -166,11 +167,14 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
         }
         # Compute omegas
         shat <- exp(matrix(1,ncol=1,nrow=N)%*%t(.array_extract(nu_sca,s)) + .array_extract(theta_sca, s) %*% .array_extract(lambda_sca_mat, s))
+        lambda_loc_mat_s <- .array_extract(lambda_loc_mat, s)
+        theta_cor_L_s <- .array_extract(theta_cor_L, s)
         omega1[,,s] <- omega_one(.array_extract(lambda_loc_mat, s), F_inds, F_inds_num, shat)
-        omega2[,,s] <- omega_two(.array_extract(lambda_loc_mat, s), F_inds, F_inds_num, .array_extract(theta_cor_L, s), shat)
+        omega2[,,s] <- omega_two(lambda_loc_mat_s, F_inds, F_inds_num, theta_cor_L_s, shat)
+        omega_total[,,s] <- omega_total(lambda_loc_mat_s, theta_cor_L_s, shat)
     }
 
-    out <- list(theta_sca = theta_sca, omega1 = omega1, omega2 = omega2)
+    out <- list(theta_sca = theta_sca, omega1 = omega1, omega2 = omega2, omega_total = omega_total)
     return(out)
 }
 
