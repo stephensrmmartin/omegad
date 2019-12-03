@@ -172,8 +172,10 @@ print.reliability.omegad <- function(x, ...) {
 ##' @return lavaan fit
 ##' @author Stephen R. Martin
 ##' @keywords internal
-.lavFit <- function(object) {
+.lavFit <- function(object, ...) {
     fun <- get("cfa", asNamespace("lavaan"))
-    lavOut <- do.call('fun', .omegad2lavaan(object))
+    dots <- list(...)
+    dots <- c(dots, .omegad2lavaan(object))
+    lavOut <- do.call('fun', dots)
     return(lavOut)
 }
