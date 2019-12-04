@@ -59,12 +59,15 @@ fitted.omegad <- function(object, summary = TRUE, prob = .95, ...) {
             })
             out <- aperm(out, c(2, 1, 3))
             colnames(out) <- c("Mean","SD",paste0("Q", probs[1]*100), paste0("Q", probs[2]*100))
-            dimnames(out)[[3]] <- unlist(object$meta$fnames$factor)
             return(out)
         })
-        ## predOut <- lapply(predOut, function(x){aperm(x, c(2,1,3))})
+        fitOut[c("theta_sca","omega1","omega2","theta_loc")] <- lapply(fitOut[c("theta_sca","omega1","omega2","theta_loc")], function(x){
+            dimnames(x)[[3]] <- unlist(object$meta$fnames$factor)
+            return(x)
+        })
+        fitOut$omega_total <- fitOut$omega_total[,,1]
     } else {
-        fitOut <- lapply(fitOut, function(x) {
+        fitOut[c("theta_sca","omega1","omega2","theta_loc")] <- lapply(fitOut[c("theta_sca","omega1","omega2","theta_loc")], function(x){
             colnames(x) <- unlist(object$meta$fnames$factor)
             return(x)
         })

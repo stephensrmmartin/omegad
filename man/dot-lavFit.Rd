@@ -4,7 +4,7 @@
 \alias{.lavFit}
 \title{Fit similar model in lavaan.}
 \usage{
-.lavFit(object)
+.lavFit(object, ...)
 }
 \arguments{
 \item{object}{omegad object.}

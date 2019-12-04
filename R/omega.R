@@ -224,7 +224,9 @@ omegad <- function(formula, data, ...) {
   `F` <- nrow(F_inds)
 
   # Misc
-  enames <- list(terms = attr(terms(exoForm.rhs), "term.labels"), vars = all.vars(exoForm.rhs))
+  enames <- list(terms = attr(terms(exoForm.rhs), "term.labels"),
+                 vars = all.vars(exoForm.rhs),
+                 mmnames = colnames(mm.exo)[-1])
   modelForms <- list(latent = forms, exo = exoForm.rhs)
 
 
