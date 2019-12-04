@@ -161,7 +161,7 @@ summary.omegad <- function(object, prob = .95, std.lv = FALSE, unstd.ov = TRUE, 
             exo_gp_alpha_sum <- aperm(apply(exo_gp_alpha, c(1, 2), .summary), c(2, 1, 3))
             exo_gp_rho_sum <- aperm(apply(exo_gp_rho, c(1, 2), .summary), c(2, 1, 3))
             dimnames(exo_gp_linear_sum)[[3]] <- dimnames(exo_gp_alpha_sum)[[3]] <- dimnames(exo_gp_rho_sum)[[3]] <- paste0(fnames, "_Error")
-            dimnames(exo_gp_linear_sum)[[1]] <- dimnames(exo_gp_alpha_sum)[[1]] <- dimnames(exo_gp_rho_sum)[[1]] <- enames$terms
+            dimnames(exo_gp_linear_sum)[[1]] <- dimnames(exo_gp_alpha_sum)[[1]] <- dimnames(exo_gp_rho_sum)[[1]] <- enames$mmnames
 
             outNames <- c(outNames, "exo_gp_linear_sum", "exo_gp_alpha_sum", "exo_gp_rho_sum")
         }
@@ -179,7 +179,7 @@ summary.omegad <- function(object, prob = .95, std.lv = FALSE, unstd.ov = TRUE, 
            }
            exo_beta_sum <- aperm(apply(exo_beta, c(1, 2), .summary), c(2, 1, 3))
            dimnames(exo_beta_sum)[[3]] <- paste0(fnames, "_Error")
-           dimnames(exo_beta_sum)[[1]] <- enames$terms
+           dimnames(exo_beta_sum)[[1]] <- enames$mmnames
 
            outNames <- c(outNames, "exo_beta_sum")
        }
