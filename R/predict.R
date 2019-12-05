@@ -258,7 +258,7 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
             if (exo) {
                 for (p in 1:(P-1)) {
                     theta_sca[,f , s] <- theta_sca[,f , s] +
-                        .spd_gp_fast(gp_exo_phis[[f]], exo_gp_alpha[p,f,s], gp_rho[p,f,s], lambdas, exo_gp_z[,f, p,s]) +
+                        .spd_gp_fast(gp_exo_phis[[p]], exo_gp_alpha[p,f,s], gp_rho[p,f,s], lambdas, exo_gp_z[,f, p,s]) +
                         exo_x[,(p + 1)]*exo_gp_linear[p,f,s]
                 }
             }
