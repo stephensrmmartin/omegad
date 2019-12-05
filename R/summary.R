@@ -274,8 +274,11 @@ print.summary.omegad <- function(x, ...) {
             for (f in 1:x$meta$F) {
                 fname <- paste0(x$meta$fnames$factor[[f]],"_Error")
                 cat(fname, "\n")
+                cat("[Linear] \n")
                 print(x$summary$exo_gp_linear[,, fname], digits = digits)
+                cat("[Alpha] \n")
                 print(x$summary$exo_gp_alpha[,, fname], digits = digits)
+                cat("[Length scale] \n")
                 print(x$summary$exo_gp_rho[,, fname], digits = digits)
                 cat("\n")
             }
