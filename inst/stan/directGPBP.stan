@@ -258,7 +258,7 @@ transformed parameters {
 
     for(f in 1:F) {
 	for(j in 1:F_inds_num[f]){
-	  shat[, F_inds[f,j]] += spd_gp_fast(gp_theta_phi[f], gp_alpha[f, F_inds[f,j]], gp_rho[f,F_inds[f,j]], gp_z[f,,F_inds[f,j]]);
+	  shat[, F_inds[f,j]] += spd_gp_fast(gp_theta_phi[f], gp_alpha[f, F_inds[f,j]], gp_rho[f,F_inds[f,j]], gp_z[f,,F_inds[f,j]]) + theta_loc[,f]*gp_linear[f, F_inds[f,j]];
 	}
     }
   shat = exp(shat);
