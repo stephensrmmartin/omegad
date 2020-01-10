@@ -301,5 +301,5 @@ predict.omegad <- function(object, newdata, summary = TRUE, prob = .95, nsamples
 
 .spd_gp_fast <- function(x_phi, alpha, rho, lambdas, gp_z) {
     spds <- .spds(alpha, rho, lambdas)
-    x_phi %*% (spds * gp_z)
+    x_phi %*% (sqrt(spds) * gp_z)
 }

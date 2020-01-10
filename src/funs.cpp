@@ -4,7 +4,7 @@
 
 #include <stan/model/standalone_functions_header.hpp>
 
-namespace user_72dbfbbd1d461c226daf45f68488c9d4 { 
+namespace user_c074f2411319751e78247ba57a507fa8 { 
 using std::istream;
 using std::string;
 using std::stringstream;
@@ -18,7 +18,7 @@ typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> matrix_d;
 stan::io::program_reader prog_reader__() {
     stan::io::program_reader reader;
     reader.add_event(0, 0, "start", "unknown file name");
-    reader.add_event(292, 290, "end", "unknown file name");
+    reader.add_event(293, 291, "end", "unknown file name");
     return reader;
 }
 
@@ -367,7 +367,7 @@ spd_gp_fast(const Eigen::Matrix<T0__, Eigen::Dynamic, Eigen::Dynamic>& x_phi,
 
 
         current_statement_begin__ = 56;
-        return stan::math::promote_scalar<fun_return_scalar_t__>(multiply(x_phi, elt_multiply(spdsOut, gp_z)));
+        return stan::math::promote_scalar<fun_return_scalar_t__>(multiply(x_phi, elt_multiply(stan::math::sqrt(spdsOut), gp_z)));
         }
     } catch (const std::exception& e) {
         stan::lang::rethrow_located(e, current_statement_begin__, prog_reader__());
@@ -831,7 +831,7 @@ Eigen::Matrix<double, Eigen::Dynamic, 1>
 lambdas(const double& L,
             const int& M){
   return 
-user_72dbfbbd1d461c226daf45f68488c9d4::lambdas<double>(L, M, &Rcpp::Rcout);
+user_c074f2411319751e78247ba57a507fa8::lambdas<double>(L, M, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -841,7 +841,7 @@ basis_phi(const double& L,
               const int& m,
               const Eigen::Matrix<double, Eigen::Dynamic, 1>& x){
   return 
-user_72dbfbbd1d461c226daf45f68488c9d4::basis_phi<double, double>(L, m, x, &Rcpp::Rcout);
+user_c074f2411319751e78247ba57a507fa8::basis_phi<double, double>(L, m, x, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -851,7 +851,7 @@ basis_phis(const double& L,
                const int& M,
                const Eigen::Matrix<double, Eigen::Dynamic, 1>& x){
   return 
-user_72dbfbbd1d461c226daf45f68488c9d4::basis_phis<double, double>(L, M, x, &Rcpp::Rcout);
+user_c074f2411319751e78247ba57a507fa8::basis_phis<double, double>(L, M, x, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -861,7 +861,7 @@ spd(const double& alpha,
         const double& rho,
         const double& lambda){
   return 
-user_72dbfbbd1d461c226daf45f68488c9d4::spd<double, double, double>(alpha, rho, lambda, &Rcpp::Rcout);
+user_c074f2411319751e78247ba57a507fa8::spd<double, double, double>(alpha, rho, lambda, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -871,7 +871,7 @@ spds(const double& alpha,
          const double& rho,
          const Eigen::Matrix<double, Eigen::Dynamic, 1>& lambdas){
   return 
-user_72dbfbbd1d461c226daf45f68488c9d4::spds<double, double, double>(alpha, rho, lambdas, &Rcpp::Rcout);
+user_c074f2411319751e78247ba57a507fa8::spds<double, double, double>(alpha, rho, lambdas, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -882,7 +882,7 @@ spd_gp(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& x_phi,
            const double& rho,
            const Eigen::Matrix<double, Eigen::Dynamic, 1>& lambdas){
   return 
-user_72dbfbbd1d461c226daf45f68488c9d4::spd_gp<double, double, double, double>(x_phi, alpha, rho, lambdas, &Rcpp::Rcout);
+user_c074f2411319751e78247ba57a507fa8::spd_gp<double, double, double, double>(x_phi, alpha, rho, lambdas, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -894,7 +894,7 @@ spd_gp_fast(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& x_phi,
                 const Eigen::Matrix<double, Eigen::Dynamic, 1>& lambdas,
                 const Eigen::Matrix<double, Eigen::Dynamic, 1>& gp_z){
   return 
-user_72dbfbbd1d461c226daf45f68488c9d4::spd_gp_fast<double, double, double, double, double>(x_phi, alpha, rho, lambdas, gp_z, &Rcpp::Rcout);
+user_c074f2411319751e78247ba57a507fa8::spd_gp_fast<double, double, double, double, double>(x_phi, alpha, rho, lambdas, gp_z, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -905,7 +905,7 @@ omega_one(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& lambda_lo
               const std::vector<int>& F_inds_num,
               const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& shat){
   return 
-user_72dbfbbd1d461c226daf45f68488c9d4::omega_one<double, double>(lambda_loc_mat, F_inds, F_inds_num, shat, &Rcpp::Rcout);
+user_c074f2411319751e78247ba57a507fa8::omega_one<double, double>(lambda_loc_mat, F_inds, F_inds_num, shat, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -914,7 +914,7 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>
 loadings_to_ones(const std::vector<std::vector<int> >& F_inds,
                      const std::vector<int>& F_inds_num){
   return 
-user_72dbfbbd1d461c226daf45f68488c9d4::loadings_to_ones(F_inds, F_inds_num, &Rcpp::Rcout);
+user_c074f2411319751e78247ba57a507fa8::loadings_to_ones(F_inds, F_inds_num, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -922,7 +922,7 @@ user_72dbfbbd1d461c226daf45f68488c9d4::loadings_to_ones(F_inds, F_inds_num, &Rcp
 Eigen::Matrix<double, Eigen::Dynamic, 1>
 ones(const int& num){
   return 
-user_72dbfbbd1d461c226daf45f68488c9d4::ones(num, &Rcpp::Rcout);
+user_c074f2411319751e78247ba57a507fa8::ones(num, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -934,7 +934,7 @@ omega_two(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& lambda_lo
               const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& theta_cor_L,
               const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& shat){
   return 
-user_72dbfbbd1d461c226daf45f68488c9d4::omega_two<double, double, double>(lambda_loc_mat, F_inds, F_inds_num, theta_cor_L, shat, &Rcpp::Rcout);
+user_c074f2411319751e78247ba57a507fa8::omega_two<double, double, double>(lambda_loc_mat, F_inds, F_inds_num, theta_cor_L, shat, &Rcpp::Rcout);
 }
 
 // [[Rcpp::depends(rstan)]]
@@ -944,7 +944,7 @@ omega_total(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& lambda_
                 const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& theta_cor_L,
                 const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& shat){
   return 
-user_72dbfbbd1d461c226daf45f68488c9d4::omega_total<double, double, double>(lambda_loc_mat, theta_cor_L, shat, &Rcpp::Rcout);
+user_c074f2411319751e78247ba57a507fa8::omega_total<double, double, double>(lambda_loc_mat, theta_cor_L, shat, &Rcpp::Rcout);
 }
 
 
