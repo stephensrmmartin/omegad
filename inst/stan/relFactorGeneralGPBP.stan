@@ -53,7 +53,7 @@ functions {
   vector spd_gp_fast(matrix x_phi, real alpha, real rho, vector lambdas, vector gp_z){
     int M = cols(x_phi);
     vector[M] spdsOut = spds(alpha, rho, lambdas);
-    return(x_phi * (spdsOut .* gp_z));
+    return(x_phi * (sqrt(spdsOut) .* gp_z));
   }
 
   // Returns NxF matrix of omegas
