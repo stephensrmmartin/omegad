@@ -1,7 +1,7 @@
 Package: omegad
 Title: Estimates omega reliabilities across the latent domain
 Version: 0.0.0.9000
-Date: 2019-11-07
+Date: 2020-02-19
 Authors@R: 
     c(
         person(given = "Stephen R.",
@@ -31,7 +31,7 @@ Imports:
     methods,
     Rcpp (>= 0.12.0),
     rstan (>= 2.18.1),
-    rstantools (>= 2.0.0.9000),
+    rstantools (>= 2.0.0),
     parallel (>= 3.6.0),
     Formula (>= 1.2.0),
     mvtnorm (>= 1.0-1),
