@@ -98,7 +98,9 @@ omegad <- function(formula, data, gp = FALSE, M = 10, std.ov = TRUE, ...) {
                enames = d$enames,
                modelForms = d$modelForms,
                std.ov = std.ov,
-               scaling = d$scaling
+               scaling = d$scaling,
+               chains = stan_args$chains,
+               S = (stanOut@stan_args[[1]]$iter - stanOut@stan_args[[1]]$warmup) * stan_args$chains
                )
   if (!is.list(formula)) {
       formula <- list(formula)
@@ -296,4 +298,40 @@ omegad <- function(formula, data, gp = FALSE, M = 10, std.ov = TRUE, ...) {
   bfmi <- rstan::get_bfmi(object$fit)
 
   return(mget(c("rhats", "n_effs", "div", "tree.max", "bfmi")))
+}
+
+# Extractors
+## Defined for any object holding meta.
+
+get_F <- function(x) {
+    x$meta$F
+}
+
+get_J <- function(x) {
+    x$meta$J
+}
+
+get_P <- function(x) {
+    x$meta$P
+}
+
+get_M <- function(x) {
+    x$meta$M
+}
+
+has_gp <- function(x) {
+    x$meta$gp
+}
+
+has_exo <- function(x) {
+    ## x$meta$P > 0
+    x$meta$exo
+}
+
+get_N <- function(x) {
+    x$meta$N
+}
+
+get_S <- function(x) {
+    x$meta$S
 }
