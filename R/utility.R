@@ -1,4 +1,42 @@
-## TODO: May want a custom sample extractor allowing for specific chains.
+##' @title Operator for testing NULL and returning expr if NULL
+##' @param object Object to test NULL on.
+##' @param expr Expression to evaluate.
+##' @return object if not NULL, results of expression if object is NULL
+##' @author Stephen R Martin
+##' @keywords internal
+%IfNull% <- function(object, expr) {
+    if(is.null(object)) {
+        return(eval(expr))
+    } else {
+        return(object)
+    }
+    
+}
+##' @title Construct named list from arguments.
+##' @param ... Objects for list.
+##' @return Named list.
+##' @author Stephen R Martin
+##' @keywords internal
+nlist <- function(...) {
+    mc <- match.call()
+    out <- list(...)
+
+    not_named <- is.null(names(out))
+    is_named <- if(not_named) {
+                    FALSE
+                } else {
+                    nzchar(names(out))
+                }
+
+    args <- as.character(mc)[-1] # Not the fn name.
+    if(not_named) {
+        names(out) <- args
+    } else {
+        names(out)[!is_named] <- args[!is_named]
+    }
+
+    out
+}
 
 ##' Extracts samples from stan fit, converts to R-friendly vectors, matrices, arrays, for each sample.
 ##'
