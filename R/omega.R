@@ -210,7 +210,13 @@ omegad <- function(formula, data, gp = FALSE, M = 10, std.ov = TRUE, ...) {
   modelForms <- list(latent = forms, exo = exoForm.rhs)
 
 
-  out <- list(stan_data = list(N = N, J = J, `F` = `F`, F_inds = F_inds, x = mm, exo_x = mm.exo, P = P),
+  out <- list(stan_data = nlist(N,
+				 J,
+				 F,
+				 F_inds,
+				 x = mm,
+				 exo_x = mm.exo,
+				 P),
               model.frame = mf,
               exo = exo,
               enames = enames,
