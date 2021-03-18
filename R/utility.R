@@ -4,7 +4,7 @@
 ##' @return object if not NULL, results of expression if object is NULL
 ##' @author Stephen R Martin
 ##' @keywords internal
-%IfNull% <- function(object, expr) {
+`%IfNull%` <- function(object, expr) {
     if(is.null(object)) {
         return(eval(expr))
     } else {
