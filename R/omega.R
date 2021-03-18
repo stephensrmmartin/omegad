@@ -37,44 +37,20 @@
 #' @return omegad object.
 #' @export
 #'
-omegad <- function(formula, data, ...) {
+omegad <- function(formula, data, gp = FALSE, M = 10, std.ov = TRUE, ...) {
   dots <- list(...)
-  if (is.null(dots$gp)) {
-    gp <- FALSE
-  } else {
-    gp <- dots$gp
-    dots$gp <- NULL
-  }
-  if (is.null(dots$M)) {
-      M <- 10
-  } else {
-      M <- dots$M
-      dots$M <- NULL
-  }
-  if (is.null(dots$std.ov)) {
-      std.ov <- TRUE
-  } else {
-      std.ov <- dots$std.ov
-      dots$std.ov <- NULL
-  }
-  if (is.null(dots$cores)) {
-    dots$cores <- getOption("mc.cores")
-    if (is.null(dots$cores)) {
-      dots$cores <- detectCores()
-    }
-  }
-  if (is.null(dots$control)) {
-    dots$control <- list(adapt_delta = .95)
-  }
-  if (is.null(dots$control$adapt_delta)) {
-    dots$control$adapt_delta <- .95
-  }
-  if (is.null(dots$chains)) {
-    dots$chains <- 4
-  }
-  if (is.null(dots$init)) {
-      dots$init <- 0
-  }
+
+  gp <- gp %IfNull% FALSE
+  M <- M %IfNull% 10
+  std.ov <- std.ov %IfNull% TRUE
+
+  stan_args <- list()
+  stan_args$cores <- dots$cores %IfNull% getOption("mc.cores")
+  stan_args$cores <- dots$cores %IfNull% detectCores()
+  stan_args$control <- dots$control %IfNull% list(adapt_delta = .95)
+  stan_args$control$adapt_delta <- dots$control$adapt_delta %IfNull% .95
+  stan_args$chains <- dots$chains %IfNull% 4
+  stan_args$init <- dots$init %IfNull% 0
 
   d <- .parse_formula(formula, data, std.ov)
   pars <- c("lambda_loc_mat",
@@ -104,8 +80,12 @@ omegad <- function(formula, data, ...) {
     pars <- c(pars, "exo_beta")
     model <- stanmodels$relFactorGeneral
   }
-  args <- c(list(object = model, data = d$stan_data, pars = pars), dots)
-  stanOut <- do.call("sampling", args = args)
+  stan_args$object <- model
+  stan_args$data <- d$stan_data
+  stan_args$pars <- pars
+  stan_args <- c(stan_args, dots)
+
+  stanOut <- do.call("sampling", args = stan_args)
 
   meta <- list(gp = gp,
                M = M,
