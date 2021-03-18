@@ -4,8 +4,15 @@
 \alias{predict.omegad}
 \title{Predict Error factor scores, omega1, and omega2 values.}
 \usage{
-\method{predict}{omegad}(object, newdata, summary = TRUE, prob = 0.95,
-  nsamples = NULL, error = TRUE, ...)
+\method{predict}{omegad}(
+  object,
+  newdata,
+  summary = TRUE,
+  prob = 0.95,
+  nsamples = NULL,
+  error = TRUE,
+  ...
+)
 }
 \arguments{
 \item{object}{omegad object.}

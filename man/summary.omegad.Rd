@@ -4,8 +4,7 @@
 \alias{summary.omegad}
 \title{Summary method for omegad objects.}
 \usage{
-\method{summary}{omegad}(object, prob = 0.95, std.lv = FALSE,
-  unstd.ov = TRUE, ...)
+\method{summary}{omegad}(object, prob = 0.95, std.lv = FALSE, unstd.ov = TRUE, ...)
 }
 \arguments{
 \item{object}{omegad object.}
