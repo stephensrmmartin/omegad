@@ -109,12 +109,13 @@ parameters {
   //Latents
   matrix[N,F] theta_z;
   cholesky_factor_corr[F] theta_cor_L;
-
 }
 
 transformed parameters {
-  matrix[N,F] theta = theta_z*theta_cor_L';
+  matrix[N,F*2] theta = append_col(theta_z*theta_cor_L', rep_matrix(0.0, N, F));
+  /* row_vector<lower=0>[N_loadings] lambda_sca = rep_row_vector(0.0, N_loadings); */
   matrix[F,J] lambda_loc_mat;
+  matrix[F,J] lambda_sca_mat = rep_matrix(0.0, F, J);
   matrix[N,J] yhat;
   matrix[N,J] shat;
 
@@ -135,7 +136,7 @@ transformed parameters {
   }
   //Predictions
   yhat = rep_matrix(nu_loc,N) + theta[,1:F]*lambda_loc_mat;
-  shat = exp(rep_matrix(nu_sca, N));
+  shat = exp(rep_matrix(nu_sca,N));
 }
 
 model {
