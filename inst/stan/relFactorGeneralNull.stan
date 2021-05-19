@@ -157,6 +157,6 @@ generated quantities {
   matrix[1,F] omega1_expected = omega_one(lambda_loc_mat,F_inds,F_inds_num,exp(rep_matrix(nu_sca,1)));
   matrix[1,F] omega2_expected = omega_two(lambda_loc_mat,F_inds,F_inds_num,theta_cor_L,exp(rep_matrix(nu_sca,1)));
   matrix[1,1] omega_total_expected = omega_total(lambda_loc_mat, theta_cor_L, exp(rep_matrix(nu_sca,1)));
-  matrix[F*2,F*2] theta_cor = diag_matrix(F*2);
+  matrix[F*2,F*2] theta_cor = diag_matrix(rep_vector(1.0, F*2));
   theta_cor[1:F, 1:F] = multiply_lower_tri_self_transpose(theta_cor_L);
 }
