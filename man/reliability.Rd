@@ -19,7 +19,7 @@ reliability(object, ...)
 \method{print}{reliability.omegad}(x, ...)
 }
 \arguments{
-\item{object}{omegad, or lavaan object.}
+\item{object}{omegad object.}
 
 \item{...}{Passed onto methods.}
 

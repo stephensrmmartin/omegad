@@ -30,9 +30,9 @@ reliability.lavaan.mi <- function(object, ...) {
 ##' \code{omegad} produces observation-specific omega coefficients (See \code{\link{predict.omegad}} and \code{\link{fitted.omegad}} for extracting these).
 ##' Users may want to compute summary statistics for the omega coefficients, and to compare these to traditional estimates.
 ##'
+##' @param object omegad object.
 ##' @param prob Numeric (Default: .95). The amount of probability mass to include within the credible interval. Default values provide a 95\% credible interval.
 ##' @return Matrix containing omega summaries for each factor.
-##' @inheritParams predict.omegad
 ##' @describeIn reliability omegad method.
 ##' @export
 reliability.omegad <- function(object, prob = .95, ...) {
