@@ -44,6 +44,9 @@ omegad <- function(formula, data, gp = FALSE, M = 10, std.ov = TRUE, ...) {
   M <- M %IfNull% 10
   std.ov <- std.ov %IfNull% TRUE
 
+  null_model <- dots$null_model %IfNull% FALSE
+  dots$null_model <- NULL
+
   stan_args <- list()
   stan_args$cores <- dots$cores %IfNull% getOption("mc.cores")
   stan_args$cores <- dots$cores %IfNull% detectCores()
@@ -79,10 +82,17 @@ omegad <- function(formula, data, gp = FALSE, M = 10, std.ov = TRUE, ...) {
   } else {
     pars <- c(pars, "exo_beta")
     model <- stanmodels$relFactorGeneral
+    if(null_model) {
+        model <- stanmodels$relFactorGeneralNull
+    }
   }
+
   stan_args$object <- model
   stan_args$data <- d$stan_data
   stan_args$pars <- pars
+  # Kill duplicate args
+  dots[names(stan_args)] <- NULL
+
   stan_args <- c(stan_args, dots)
 
   stanOut <- do.call("sampling", args = stan_args)
