@@ -46,15 +46,18 @@ For convenience, we define a generic \code{reliability}, with lavaan methods.
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{lavaan}: lavaan method.
+\item \code{reliability(lavaan)}: lavaan method.
 
-\item \code{lavaan.mi}: lavaan.mi method.
+\item \code{reliability(lavaan.mi)}: lavaan.mi method.
 
-\item \code{omegad}: omegad method.
+\item \code{reliability(omegad)}: omegad method.
 
-\item \code{reliability.omegad}: Print method for reliability.omegad objects.
 }}
+\section{Functions}{
+\itemize{
+\item \code{print(reliability.omegad)}: Print method for reliability.omegad objects.
 
+}}
 \seealso{
 \code{\link[semTools]{reliability}}
 }
