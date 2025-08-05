@@ -37,44 +37,23 @@
 #' @return omegad object.
 #' @export
 #'
-omegad <- function(formula, data, ...) {
+omegad <- function(formula, data, gp = FALSE, M = 10, std.ov = TRUE, ...) {
   dots <- list(...)
-  if (is.null(dots$gp)) {
-    gp <- FALSE
-  } else {
-    gp <- dots$gp
-    dots$gp <- NULL
-  }
-  if (is.null(dots$M)) {
-      M <- 10
-  } else {
-      M <- dots$M
-      dots$M <- NULL
-  }
-  if (is.null(dots$std.ov)) {
-      std.ov <- TRUE
-  } else {
-      std.ov <- dots$std.ov
-      dots$std.ov <- NULL
-  }
-  if (is.null(dots$cores)) {
-    dots$cores <- getOption("mc.cores")
-    if (is.null(dots$cores)) {
-      dots$cores <- detectCores()
-    }
-  }
-  if (is.null(dots$control)) {
-    dots$control <- list(adapt_delta = .95)
-  }
-  if (is.null(dots$control$adapt_delta)) {
-    dots$control$adapt_delta <- .95
-  }
-  if (is.null(dots$chains)) {
-    dots$chains <- 4
-  }
-  if (is.null(dots$init)) {
-      dots$init <- 0
-  }
+
+  gp <- gp %IfNull% FALSE
+  M <- M %IfNull% 10
+  std.ov <- std.ov %IfNull% TRUE
+
+  null_model <- dots$null_model %IfNull% FALSE
+  dots$null_model <- NULL
+
+  stan_args <- list()
+  stan_args$cores <- dots$cores %IfNull% getOption("mc.cores")
+  stan_args$cores <- dots$cores %IfNull% detectCores()
+  stan_args$control <- dots$control %IfNull% list(adapt_delta = .95)
+  stan_args$control$adapt_delta <- dots$control$adapt_delta %IfNull% .95
+  stan_args$chains <- dots$chains %IfNull% 4
+  stan_args$init <- dots$init %IfNull% 0
 
   d <- .parse_formula(formula, data, std.ov)
   pars <- c("lambda_loc_mat",
@@ -103,9 +82,20 @@ omegad <- function(formula, data, ...) {
   } else {
     pars <- c(pars, "exo_beta")
     model <- stanmodels$relFactorGeneral
+    if(null_model) {
+        model <- stanmodels$relFactorGeneralNull
+    }
   }
-  args <- c(list(object = model, data = d$stan_data, pars = pars), dots)
-  stanOut <- do.call("sampling", args = args)
+
+  stan_args$object <- model
+  stan_args$data <- d$stan_data
+  stan_args$pars <- pars
+  # Kill duplicate args
+  dots[names(stan_args)] <- NULL
+
+  stan_args <- c(stan_args, dots)
+
+  stanOut <- do.call("sampling", args = stan_args)
 
   meta <- list(gp = gp,
                M = M,
@@ -118,7 +108,9 @@ omegad <- function(formula, data, ...) {
                enames = d$enames,
                modelForms = d$modelForms,
                std.ov = std.ov,
-               scaling = d$scaling
+               scaling = d$scaling,
+               chains = stan_args$chains,
+               S = (stanOut@stan_args[[1]]$iter - stanOut@stan_args[[1]]$warmup) * stan_args$chains
                )
   if (!is.list(formula)) {
       formula <- list(formula)
@@ -230,7 +222,13 @@ omegad <- function(formula, data, ...) {
   modelForms <- list(latent = forms, exo = exoForm.rhs)
 
 
-  out <- list(stan_data = list(N = N, J = J, `F` = `F`, F_inds = F_inds, x = mm, exo_x = mm.exo, P = P),
+  out <- list(stan_data = nlist(N,
+				 J,
+				 F,
+				 F_inds,
+				 x = mm,
+				 exo_x = mm.exo,
+				 P),
               model.frame = mf,
               exo = exo,
               enames = enames,
@@ -310,4 +308,40 @@ omegad <- function(formula, data, ...) {
   bfmi <- rstan::get_bfmi(object$fit)
 
   return(mget(c("rhats", "n_effs", "div", "tree.max", "bfmi")))
+}
+
+# Extractors
+## Defined for any object holding meta.
+
+get_F <- function(x) {
+    x$meta$F
+}
+
+get_J <- function(x) {
+    x$meta$J
+}
+
+get_P <- function(x) {
+    x$meta$P
+}
+
+get_M <- function(x) {
+    x$meta$M
+}
+
+has_gp <- function(x) {
+    x$meta$gp
+}
+
+has_exo <- function(x) {
+    ## x$meta$P > 0
+    x$meta$exo
+}
+
+get_N <- function(x) {
+    x$meta$N
+}
+
+get_S <- function(x) {
+    x$meta$S
 }

@@ -48,8 +48,8 @@ functions {
     int F = rows(lambda_loc_mat);
     int J = cols(shat);
     matrix[N, J] vhat = shat .* shat;
-    matrix[F * 2, F * 2] theta_cov = multiply_lower_tri_self_transpose(theta_cor_L);
-    matrix[F, F] theta_loc_cov = theta_cov[1 : F, 1 : F];
+    matrix[F, F] theta_cov = multiply_lower_tri_self_transpose(theta_cor_L);
+    matrix[F, F] theta_loc_cov = theta_cov;
     matrix[J, J] implied_cov_fixed = lambda_loc_mat' * theta_loc_cov
                                      * lambda_loc_mat;
     matrix[F, J] lambda_ones = loadings_to_ones(F_inds, F_inds_num);
@@ -70,7 +70,7 @@ functions {
     int F = rows(lambda_loc_mat);
     int J = cols(shat);
     matrix[N, J] vhat = shat .* shat;
-    matrix[F, F] theta_loc_cov = multiply_lower_tri_self_transpose(theta_cor_L)[1 : F, 1 : F];
+    matrix[F, F] theta_loc_cov = multiply_lower_tri_self_transpose(theta_cor_L);
     vector[J] one = ones(J);
     real numerator = one' * lambda_loc_mat' * theta_loc_cov * lambda_loc_mat
                      * one;
@@ -106,33 +106,26 @@ transformed data {
 parameters {
   // Loadings
   row_vector<lower=0>[N_loadings] lambda_loc; // Pos. constraint!
-  row_vector<lower=0>[N_loadings] lambda_sca; // Pos. constraint!
   // Intercepts
   row_vector[J] nu_loc;
   row_vector[J] nu_sca;
   //Latents
-  matrix[N, F * 2] theta_z;
-  cholesky_factor_corr[F * 2] theta_cor_L;
-  
-  // Exogenous model for scale factors
-  // Use P-1; R will pass in an intercept column, which we want to be zero.
-  matrix[P - 1, F] exo_beta;
+  matrix[N, F] theta_z;
+  cholesky_factor_corr[F] theta_cor_L;
 }
 transformed parameters {
-  matrix[N, F * 2] theta = theta_z * theta_cor_L';
+  matrix[N, F * 2] theta = append_col(theta_z * theta_cor_L',
+                                      rep_matrix(0.0, N, F));
+  /* row_vector<lower=0>[N_loadings] lambda_sca = rep_row_vector(0.0, N_loadings); */
   matrix[F, J] lambda_loc_mat;
-  matrix[F, J] lambda_sca_mat;
+  matrix[F, J] lambda_sca_mat = rep_matrix(0.0, F, J);
   matrix[N, J] yhat;
   matrix[N, J] shat;
   
-  // Exogenous predictions
-  theta[ : , F + 1 : F * 2] += exo_x
-                               * append_row(rep_row_vector(0, F), exo_beta);
   // Init to zero
   for (f in 1 : F) {
     for (j in 1 : J) {
       lambda_loc_mat[f, j] = 0;
-      lambda_sca_mat[f, j] = 0;
     }
   }
   // Unroll lambda_loc and lambda_sca
@@ -142,39 +135,27 @@ transformed parameters {
       lambda_loc_mat[f, F_inds[f, 1 : F_inds_num[f]]] = lambda_loc[count : (count
                                                                     - 1
                                                                     + F_inds_num[f])];
-      lambda_sca_mat[f, F_inds[f, 1 : F_inds_num[f]]] = lambda_sca[count : (count
-                                                                    - 1
-                                                                    + F_inds_num[f])];
       count += F_inds_num[f];
     }
   }
   //Predictions
   yhat = rep_matrix(nu_loc, N) + theta[ : , 1 : F] * lambda_loc_mat;
-  shat = exp(rep_matrix(nu_sca, N)
-             + theta[ : , (F + 1) : (F * 2)] * lambda_sca_mat);
+  shat = exp(rep_matrix(nu_sca, N));
 }
 model {
   // Priors
   /* Measurement */
   lambda_loc ~ std_normal();
-  lambda_sca ~ std_normal();
   nu_loc ~ std_normal();
   //nu_sca ~ std_normal();
   nu_sca ~ normal(-.5, 1);
   to_vector(theta_z) ~ std_normal();
   theta_cor_L ~ lkj_corr_cholesky(1);
   
-  /* Exogenous */
-  to_vector(exo_beta) ~ std_normal();
-  
   // Likelihood
   to_vector(x) ~ normal(to_vector(yhat), to_vector(shat));
 }
 generated quantities {
-  //matrix omega_one(matrix lambda_loc_mat,int[,] F_inds, int[] F_inds_num, matrix shat){
-  // matrix[N,F] omega1 = omega_one(lambda_loc_mat, F_inds, F_inds_num, shat);
-  // matrix omega_two(matrix lambda_loc_mat, int[,] F_inds, int[] F_inds_num, matrix theta_cor_L, matrix shat){
-  // matrix[N,F] omega2 = omega_two(lambda_loc_mat, F_inds, F_inds_num, theta_cor_L, shat);
   matrix[1, F] omega1_expected = omega_one(lambda_loc_mat, F_inds,
                                            F_inds_num,
                                            exp(rep_matrix(nu_sca, 1)));
@@ -184,6 +165,8 @@ generated quantities {
   matrix[1, 1] omega_total_expected = omega_total(lambda_loc_mat,
                                                   theta_cor_L,
                                                   exp(rep_matrix(nu_sca, 1)));
-  matrix[F * 2, F * 2] theta_cor = multiply_lower_tri_self_transpose(theta_cor_L);
+  matrix[F * 2, F * 2] theta_cor = diag_matrix(rep_vector(1.0, F * 2));
+  matrix[P - 1, F] exo_beta = rep_matrix(0.0, P - 1, F);
+  theta_cor[1 : F, 1 : F] = multiply_lower_tri_self_transpose(theta_cor_L);
 }
 

@@ -4,20 +4,20 @@
 \alias{omegad}
 \title{Fit Omega model}
 \usage{
-omegad(formula, data, ...)
+omegad(formula, data, gp = FALSE, M = 10, std.ov = TRUE, ...)
 }
 \arguments{
 \item{formula}{Formula specifying the factor structure. See details.}
 
 \item{data}{Data frame containing indicators as columns.}
 
-\item{...}{Options passed onto \code{\link[rstan]{sampling}}.}
-
 \item{gp}{Logical (Default: FALSE). Whether to fit an approximate gaussian process model between latent factors (and exogenous variables) and their corresponding Error factors.}
 
 \item{M}{Integer (Default: 10). Only applicable if \code{gp = TRUE}. The number of basis functions to use in the approximate gaussian processes. Larger M provides a better approximation at a greater computational cost.}
 
 \item{std.ov}{Logical (Default: TRUE). Whether to standardize the indicators predictors. The implemented priors assume approximately standardized indicators.}
+
+\item{...}{Options passed onto \code{\link[rstan]{sampling}}.}
 }
 \value{
 omegad object.

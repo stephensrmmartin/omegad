@@ -1,7 +1,7 @@
 Package: omegad
 Title: Estimates Omega Reliability Across the Latent Domain
-Version: 0.0.0.9001
-Date: 2020-02-19
+Version: 0.0.0.9100
+Date: 2025-08-05
 Authors@R: 
     c(
         person(given = "Stephen R.",
@@ -26,22 +26,24 @@ LazyData: true
 Biarch: true
 NeedsCompilation: true
 Depends: 
-    R (>= 3.4.0)
+    R (>= 4.0.0)
 Imports: 
-    methods,
-    Rcpp (>= 1.0.0),
-    rstan (>= 2.21.2),
-    rstantools (>= 2.1.1),
-    parallel (>= 3.6.0),
     Formula (>= 1.2.0),
-    mvtnorm (>= 1.0-1),
     loo (>= 2.1.0),
+    methods,
+    mvtnorm (>= 1.0-1),
+    parallel (>= 3.6.0),
+    Rcpp (>= 1.0.0),
+    RcppParallel (>= 5.0.1),
+    rstan (>= 2.27.2),
+    rstantools (>= 2.4.0),
     semTools (>= 0.5-1)
 LinkingTo: 
     BH (>= 1.66.0),
     Rcpp (>= 0.12.0),
     RcppEigen (>= 0.3.3.3.0),
+    RcppParallel (>= 5.0.1),
     rstan (>= 2.18.1),
-    StanHeaders (>= 2.18.0)
+    StanHeaders (>= 2.27.0)
 SystemRequirements: GNU make
-RoxygenNote: 6.1.1
+RoxygenNote: 7.3.2
